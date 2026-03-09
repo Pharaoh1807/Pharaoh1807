@@ -95,7 +95,7 @@ router.get('/me', protect, (req, res) => {
 router.get('/orders', protect, async (req, res) => {
   try {
     // Find only COMPLETED transactions for the logged-in user and populate product details
-    const orders = await Transaction.find({ user: req.user._id, status: 'completed' })
+    const orders = await Transaction.find({ user: req.user._id })
       .populate('product', 'name imageUrls priceCents _id') // Lấy thông tin sản phẩm liên quan
       .sort({ createdAt: -1 }); // Sắp xếp đơn hàng mới nhất lên đầu
 

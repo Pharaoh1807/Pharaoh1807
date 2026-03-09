@@ -151,7 +151,10 @@ export default function App() {
         const newNotifications = [];
         latestOrders.forEach(newOrder => {
           const oldOrder = oldOrders.find(o => o._id === newOrder._id);
+          
+          
           if (oldOrder && oldOrder.status === 'processing' && newOrder.status === 'completed') {
+            console.log("oldOrder", 1);
             newNotifications.push({
               id: newOrder._id,
               message: `Đơn hàng #${newOrder.transactionId.slice(-6)} đã được xác nhận!`,
@@ -160,8 +163,11 @@ export default function App() {
           }
         });
 
+        
+
         if (newNotifications.length > 0) {
           setNotifications(prev => [...newNotifications, ...prev]);
+          
         }
 
         // Always update the ref with the latest data for the current user.
@@ -197,6 +203,9 @@ export default function App() {
     alignItems: 'center',
     justifyContent: 'center',
   };
+
+
+
 
   return (
     <div style={{ 
