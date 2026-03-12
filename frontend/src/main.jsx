@@ -19,12 +19,13 @@ import UserDashboard from './pages/UserDashboard.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminTransactionsPage from './pages/AdminTransactionsPage.jsx';
 import AdminProductHistory from './pages/AdminProductHistory.jsx';
+import NotFound from './pages/NotFound.jsx';
 
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />,
+    element: <App/>,
     children: [
       { index: true, element: <Shop /> },
       { path: 'success', element: <Success /> },
@@ -48,7 +49,8 @@ const router = createBrowserRouter([
       { path: 'admin/products/edit/:id', element: <AdminEditProduct /> },
       { path: 'admin/products/:id/history', element: <AdminProductHistory /> },
       { path: 'admin/transactions', element: <AdminTransactionsPage/> },
-      { path: 'admin/failedlogin', element: <AdminFailedLogin /> }
+      { path: 'admin/failedlogin', element: <AdminFailedLogin /> },
+      { path: '404', element: <NotFound /> }
     ]
   }
 ]);

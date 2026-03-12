@@ -35,10 +35,10 @@ export default function AdminEditProduct() {
   const update = async (e) => {
     e.preventDefault();
     try {
-      const { name, description, longDescription, priceCents, imageUrls, active, stock } = form;
+      const { name, description, longDescription, priceCents, imageUrls, active } = form;
       // Lọc ra các URL rỗng trước khi gửi đi
       const filteredImageUrls = imageUrls.filter(url => url && url.trim() !== '');
-      const payload = { name, description, longDescription, priceCents: Number(priceCents), imageUrls: filteredImageUrls, active, stock: Number(stock) };
+      const payload = { name, description, longDescription, priceCents: Number(priceCents), imageUrls: filteredImageUrls, active};
 
       await api.adminUpdate(token, id, payload);
       nav('/admin/products');
@@ -50,6 +50,7 @@ export default function AdminEditProduct() {
 
   const handleFormChange = (e) => {
     const { name, value, type, checked } = e.target;
+    
     setForm(prevForm => ({
       ...prevForm,
       [name]: type === 'checkbox' ? checked : value
@@ -142,20 +143,8 @@ export default function AdminEditProduct() {
               required
             />
           </div>
-          {/* <div style={adminStyles.inputGroup}>
-            <label htmlFor="stock" style={adminStyles.label}>Stock Quantity</label>
-            <input
-              id="stock"
-              type="number"
-              name="stock"
-              placeholder="e.g. 100"
-              value={form.stock || ""}
-              onChange={handleFormChange}
-              style={adminStyles.input}
-              required
-              min="0"
-            />
-          </div> */}
+          
+          
           <div style={adminStyles.inputGroup}>
             <label style={adminStyles.checkboxLabel}>
               <input

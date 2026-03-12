@@ -155,6 +155,7 @@ export default function AdminProductHistory() {
 
   return (
     <div style={adminStyles.container}>
+      
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h2 style={{...adminStyles.header, marginBottom: '0.5rem'}}>Lịch sử tồn kho</h2>
@@ -167,13 +168,35 @@ export default function AdminProductHistory() {
         </div>
         <div>
           <button onClick={() => setIsModalOpen(true)} style={{...adminStyles.button, ...adminStyles.primaryButton, marginRight: '1rem'}}>
-            Điều chỉnh kho
+            Điều chỉnh tồn
           </button>
           <button onClick={() => navigate('/admin/products')} style={adminStyles.button}>
             &larr; Quay lại
           </button>
         </div>
       </div>
+
+      {isModalOpen && (
+        <div style={adminStyles.modalOverlay}>
+          <div style={adminStyles.modalContent}>
+            <h3 style={{...adminStyles.header, textAlign: 'center'}}>Điều chỉnh tồn kho</h3>
+            <form onSubmit={handleAdjustmentSubmit}>
+              <div style={adminStyles.inputGroup}>
+                <label style={adminStyles.label}>Số lượng thay đổi</label>
+                <input type="number" value={adjustment.quantityChange} onChange={(e) => setAdjustment(prev => ({ ...prev, quantityChange: e.target.value }))} style={adminStyles.input} placeholder="VD: 50 để nhập kho, -5 để xuất kho" required />
+              </div>
+              <div style={adminStyles.inputGroup}>
+                <label style={adminStyles.label}>Ghi chú (Không bắt buộc)</label>
+                <textarea value={adjustment.notes} onChange={(e) => setAdjustment(prev => ({ ...prev, notes: e.target.value }))} style={adminStyles.textarea} placeholder="VD: Nhận hàng từ nhà cung cấp, Điều chỉnh sau kiểm kê" />
+              </div>
+              <div style={adminStyles.buttonGroup}>
+                <button type="button" onClick={() => setIsModalOpen(false)} style={{...adminStyles.button, ...adminStyles.cancelButton}}>Hủy</button>
+                <button type="submit" disabled={isSubmitting} style={{...adminStyles.button, ...adminStyles.primaryButton}}>{isSubmitting ? 'Đang xử lý...' : 'Xác nhận'}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div style={{ backgroundColor: '#2d3748', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem', border: '1px solid #4a5568' }}>
         <h4 style={{marginTop: 0, marginBottom: '1rem', color: '#cbd5e0'}}>Lọc lịch sử</h4>
@@ -188,7 +211,14 @@ export default function AdminProductHistory() {
 
       <div style={{overflowX: 'auto'}}>
         <table style={adminStyles.table}>
-          <thead><tr><th style={adminStyles.th}>Ngày</th><th style={adminStyles.th}>Loại</th><th style={adminStyles.th}>Thay đổi</th><th style={adminStyles.th}>Tồn kho sau</th><th style={adminStyles.th}>Thực hiện bởi</th><th style={adminStyles.th}>Ghi chú / Mã GD</th></tr></thead>
+          <thead>
+            <tr>
+              <th style={adminStyles.th}>Ngày</th>
+              <th style={adminStyles.th}>Loại</th>
+              <th style={adminStyles.th}>Thay đổi</th>
+              <th style={adminStyles.th}>Tồn kho sau</th>
+              <th style={adminStyles.th}>Thực hiện bởi</th>
+              <th style={adminStyles.th}>Ghi chú / Mã GD</th></tr></thead>
           <tbody>
             {history.length > 0 ? (
               history.map(log => (
@@ -214,27 +244,7 @@ export default function AdminProductHistory() {
         </table>
       </div>
 
-      {isModalOpen && (
-        <div style={adminStyles.modalOverlay}>
-          <div style={adminStyles.modalContent}>
-            <h3 style={{...adminStyles.header, textAlign: 'center'}}>Điều chỉnh tồn kho</h3>
-            <form onSubmit={handleAdjustmentSubmit}>
-              <div style={adminStyles.inputGroup}>
-                <label style={adminStyles.label}>Số lượng thay đổi</label>
-                <input type="number" value={adjustment.quantityChange} onChange={(e) => setAdjustment(prev => ({ ...prev, quantityChange: e.target.value }))} style={adminStyles.input} placeholder="VD: 50 để nhập kho, -5 để xuất kho" required />
-              </div>
-              <div style={adminStyles.inputGroup}>
-                <label style={adminStyles.label}>Ghi chú (Không bắt buộc)</label>
-                <textarea value={adjustment.notes} onChange={(e) => setAdjustment(prev => ({ ...prev, notes: e.target.value }))} style={adminStyles.textarea} placeholder="VD: Nhận hàng từ nhà cung cấp, Điều chỉnh sau kiểm kê" />
-              </div>
-              <div style={adminStyles.buttonGroup}>
-                <button type="button" onClick={() => setIsModalOpen(false)} style={{...adminStyles.button, ...adminStyles.cancelButton}}>Hủy</button>
-                <button type="submit" disabled={isSubmitting} style={{...adminStyles.button, ...adminStyles.primaryButton}}>{isSubmitting ? 'Đang xử lý...' : 'Xác nhận'}</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      
     </div>
   );
 }

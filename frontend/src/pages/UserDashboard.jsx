@@ -69,6 +69,10 @@ export default function UserDashboard() {
     };
 
     fetchOrders();
+
+    const intervalId = setInterval(fetchOrders, 15000); // Refresh every 10 seconds
+    return () => clearInterval(intervalId); // Cleanup on unmount
+    
   }, []);
 
   const styles = {
