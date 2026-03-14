@@ -11,7 +11,7 @@ export default function AdminUsers() {
   const [pagination, setPagination] = useState({ currentPage: 1, totalPages: 1, totalUsers: 0 });
   const [loading, setLoading] = useState(true);
   const [editingUserId, setEditingUserId] = useState(null);
-  const [editFormData, setEditFormData] = useState({ name: '', email: '' });
+  const [editFormData, setEditFormData] = useState({ name: '', email: '', password: '', confirmPassword: '' });
 
   const logout = useCallback(() => {
     localStorage.removeItem('admin_token');
@@ -45,7 +45,7 @@ export default function AdminUsers() {
     try {
       await api.adminDeleteUser(token, userId);
       alert('User deleted successfully.');
-      
+
       // Tải lại danh sách để cập nhật giao diện.
       // Nếu đây là user cuối cùng trên trang, lùi về trang trước.
       if (users.length === 1 && pagination.currentPage > 1) {
@@ -61,7 +61,7 @@ export default function AdminUsers() {
 
   const handleEditClick = (user) => {
     setEditingUserId(user._id);
-    setEditFormData({ name: user.name, email: user.email });
+    setEditFormData({ name: user.name, email: user.email, password: '', confirmPassword: '' });
   };
 
   const handleCancelClick = () => {
@@ -78,8 +78,17 @@ export default function AdminUsers() {
       alert('Name and email cannot be empty.');
       return;
     }
+    if (editFormData.password && editFormData.password !== editFormData.confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+    }
     try {
-      const updatedUser = await api.adminUpdateUser(token, userId, editFormData);
+      const payload = { ...editFormData };
+      if (!payload.password) {
+        delete payload.password;
+        delete payload.confirmPassword;
+      }
+      const updatedUser = await api.adminUpdateUser(token, userId, payload);
       setUsers(currentUsers => currentUsers.map(user =>
         user._id === userId ? { ...user, ...updatedUser } : user
       ));
@@ -113,20 +122,20 @@ export default function AdminUsers() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'stretch', marginBottom: '1rem' }}>
         <h2 style={{ ...adminStyles.header, borderBottom: 'none', alignSelf: 'center' }}>User Management</h2>
         <div style={{
-          ...adminStyles.statCard, 
+          ...adminStyles.statCard,
           borderRadius: '8px', // Bo tròn các góc
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)', // Thêm hiệu ứng đổ bóng
-          backgroundColor: '#38A169', 
-          margin: '0 1rem', 
-          padding: '0.5rem 1rem', 
-          minWidth: '150px', 
+          backgroundColor: '#38A169',
+          margin: '0 1rem',
+          padding: '0.5rem 1rem',
+          minWidth: '150px',
           textAlign: 'center',
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'center'
         }}>
-          <h3 style={{...adminStyles.statCardTitle, margin: '0 0 0.25rem 0', color: '#FFFFFF'}}>Total Users</h3>
-          <p style={{...adminStyles.statCardValue, margin: 0, color: '#FFFFFF'}}>{pagination.totalUsers}</p>
+          <h3 style={{ ...adminStyles.statCardTitle, margin: '0 0 0.25rem 0', color: '#FFFFFF' }}>Total Users</h3>
+          <p style={{ ...adminStyles.statCardValue, margin: 0, color: '#FFFFFF' }}>{pagination.totalUsers}</p>
         </div>
         <button onClick={() => nav('/admin/products')} style={{ ...adminStyles.button, ...adminStyles.secondaryButton }}>
           &larr; Back to Dashboard
@@ -140,12 +149,12 @@ export default function AdminUsers() {
               <th style={{ ...adminStyles.th, textAlign: 'left' }}>Name</th>
               <th style={{ ...adminStyles.th, textAlign: 'left' }}>Email</th>
               <th style={adminStyles.th}>Date Registered</th>
-              <th style={{...adminStyles.th, textAlign: 'center'}}>Actions</th>
+              <th style={{ ...adminStyles.th, textAlign: 'center' }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="4" style={{...adminStyles.td, textAlign: 'center'}}>Loading users...</td></tr>
+              <tr><td colSpan="4" style={{ ...adminStyles.td, textAlign: 'center' }}>Loading users...</td></tr>
             ) : users.length > 0 ? (
               users.map(user => (
                 editingUserId === user._id ? (
@@ -153,13 +162,19 @@ export default function AdminUsers() {
                   <tr key={user._id} style={{ backgroundColor: '#3c465a' }}>
                     <td style={adminStyles.td}>
                       <input type="text" name="name" value={editFormData.name} onChange={handleEditFormChange} style={inputStyle} />
+                      <div style={{ marginTop: '8px' }}>
+                        <input type="password" name="password" placeholder="New Password" value={editFormData.password} onChange={handleEditFormChange} style={inputStyle} />
+                      </div>
                     </td>
                     <td style={adminStyles.td}>
                       <input type="email" name="email" value={editFormData.email} onChange={handleEditFormChange} style={inputStyle} />
+                      <div style={{ marginTop: '8px' }}>
+                        <input type="password" name="confirmPassword" placeholder="Confirm Password" value={editFormData.confirmPassword} onChange={handleEditFormChange} style={inputStyle} />
+                      </div>
                     </td>
                     <td style={{ ...adminStyles.td, textAlign: 'center' }}>{new Date(user.createdAt).toLocaleDateString('vi-VN')}</td>
-                    <td style={{...adminStyles.td, ...adminStyles.actionsCell}}>
-                      <div style={{...adminStyles.buttonGroup, gap: '0.5rem', justifyContent: 'center'}}>
+                    <td style={{ ...adminStyles.td, ...adminStyles.actionsCell }}>
+                      <div style={{ ...adminStyles.buttonGroup, gap: '0.5rem', justifyContent: 'center' }}>
                         <button onClick={() => handleSaveClick(user._id)} style={{ ...adminStyles.button, ...adminStyles.primaryButton, padding: '0.5rem 1rem' }}>Save</button>
                         <button onClick={handleCancelClick} style={{ ...adminStyles.button, ...adminStyles.secondaryButton, padding: '0.5rem 1rem' }}>Cancel</button>
                       </div>
@@ -171,16 +186,16 @@ export default function AdminUsers() {
                     <td style={adminStyles.td}>{user.name}</td>
                     <td style={adminStyles.td}>{user.email}</td>
                     <td style={{ ...adminStyles.td, textAlign: 'center' }}>{new Date(user.createdAt).toLocaleDateString('vi-VN')}</td>
-                    <td style={{...adminStyles.td, ...adminStyles.actionsCell}}>
-                      <div style={{...adminStyles.buttonGroup, gap: '0.5rem', justifyContent: 'center'}}>
-                        <button 
+                    <td style={{ ...adminStyles.td, ...adminStyles.actionsCell }}>
+                      <div style={{ ...adminStyles.buttonGroup, gap: '0.5rem', justifyContent: 'center' }}>
+                        <button
                           onClick={() => handleEditClick(user)}
                           style={{ ...adminStyles.button, ...adminStyles.editButton, marginRight: "1rem", padding: '0.5rem 1rem' }}
                         >
                           Edit
                         </button>
-                        <button 
-                          onClick={() => handleDelete(user._id)} 
+                        <button
+                          onClick={() => handleDelete(user._id)}
                           style={{ ...adminStyles.button, ...adminStyles.dangerButton, padding: '0.5rem 1rem' }}
                         >
                           Delete
@@ -191,29 +206,29 @@ export default function AdminUsers() {
                 )
               ))
             ) : (
-              <tr><td colSpan="4" style={{...adminStyles.td, textAlign: 'center'}}>No users found.</td></tr>
+              <tr><td colSpan="4" style={{ ...adminStyles.td, textAlign: 'center' }}>No users found.</td></tr>
             )}
           </tbody>
         </table>
         {pagination.totalPages > 1 && (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '1rem', gap: '0.5rem' }}>
-              <button
-                onClick={() => fetchUsers(pagination.currentPage - 1)}
-                disabled={pagination.currentPage <= 1 || loading}
-                style={{...adminStyles.button, ...adminStyles.secondaryButton}}
-              >
-                &larr; Previous
-              </button>
-              <span style={{ color: '#e2e8f0' }}>Page {pagination.currentPage} of {pagination.totalPages}</span>
-              <button
-                onClick={() => fetchUsers(pagination.currentPage + 1)}
-                disabled={pagination.currentPage >= pagination.totalPages || loading}
-                style={{...adminStyles.button, ...adminStyles.secondaryButton}}
-              >
-                Next &rarr;
-              </button>
-            </div>
-          )}
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '1rem', gap: '0.5rem' }}>
+            <button
+              onClick={() => fetchUsers(pagination.currentPage - 1)}
+              disabled={pagination.currentPage <= 1 || loading}
+              style={{ ...adminStyles.button, ...adminStyles.secondaryButton }}
+            >
+              &larr; Previous
+            </button>
+            <span style={{ color: '#e2e8f0' }}>Page {pagination.currentPage} of {pagination.totalPages}</span>
+            <button
+              onClick={() => fetchUsers(pagination.currentPage + 1)}
+              disabled={pagination.currentPage >= pagination.totalPages || loading}
+              style={{ ...adminStyles.button, ...adminStyles.secondaryButton }}
+            >
+              Next &rarr;
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

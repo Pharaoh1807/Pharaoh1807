@@ -30,6 +30,25 @@ export const api = {
     return res.json();
   },
 
+  async deletetransaction(transactionId) {
+    const token = localStorage.getItem('user_token');
+    if (!token) {
+      throw new Error('Authentication required. Please log in.');
+    }
+    const res = await fetch(`${API_URL}/api/transactions/${transactionId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+    });
+    if (!res.ok) {
+      const error = await res.json();
+      throw new Error(error.error || 'Failed to delete transaction');
+    }
+    return res.json();
+  },
+
   async checkTransactionStatus(transactionId) {
     const res = await fetch(`${API_URL}/api/transactions/status/${transactionId}`);
     if (!res.ok) {
@@ -203,9 +222,19 @@ export const api = {
     return res.json();
   },
 
-  async getProductHistory (token, productId) {
-    const res = await fetch(`${API_URL}/api/admin/products/${productId}/history`, {
-      headers: { 'Authorization': `Bearer ${token}` }
+  async getProductHistory (token, productId, activeFilters) {
+    const url = new URL(`${API_URL}/api/admin/products/${productId}/history`);
+
+    //them query params
+    if (activeFilters) {
+      Object.entries(activeFilters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          url.searchParams.append(key, value);
+        }
+      });
+    }
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` }
     })
     if (!res.ok) throw new Error('Failed to fetch product history');
     return res.json();

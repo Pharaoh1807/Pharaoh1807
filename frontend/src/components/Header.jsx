@@ -8,6 +8,7 @@ export default function Header() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [userInfo, setUserInfo] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [bell, setBell] = useState(true);
   const [showNotifications, setShowNotifications] = useState(false);
   const previousOrdersRef = useRef({ userId: null, orders: [] });
   const notificationTimeoutRef = useRef(null);
@@ -27,17 +28,17 @@ export default function Header() {
       if (rawUserToken) {
         // Nếu có chuỗi token người dùng, xác thực nó
         api.verifyUserToken(rawUserToken)
-            .then(freshUserData => {
-              // Token hợp lệ, cập nhật state và localStorage với dữ liệu mới từ server
-              setUserInfo(freshUserData);
-              localStorage.setItem('user_info', JSON.stringify(freshUserData));
-            })
-            .catch(() => {
-              // Token không hợp lệ hoặc đã hết hạn, dọn dẹp cả user_token và user_info
-              localStorage.removeItem('user_token');
-              localStorage.removeItem('user_info');
-              setUserInfo(null);
-            });
+          .then(freshUserData => {
+            // Token hợp lệ, cập nhật state và localStorage với dữ liệu mới từ server
+            setUserInfo(freshUserData);
+            localStorage.setItem('user_info', JSON.stringify(freshUserData));
+          })
+          .catch(() => {
+            // Token không hợp lệ hoặc đã hết hạn, dọn dẹp cả user_token và user_info
+            localStorage.removeItem('user_token');
+            localStorage.removeItem('user_info');
+            setUserInfo(null);
+          });
       } else {
         // Không có chuỗi token người dùng, đảm bảo user_info cũng được xóa
         localStorage.removeItem('user_info');
@@ -110,12 +111,14 @@ export default function Header() {
   // Handlers for showing/hiding the notification dropdown with a delay
   // to allow the user to move their mouse into the dropdown.
   const handleNotificationEnter = () => {
+
     clearTimeout(notificationTimeoutRef.current);
     setShowNotifications(true);
   };
 
   const handleNotificationLeave = () => {
     // Set a timeout to hide the dropdown, allowing the user to move the cursor into it
+    setBell(false);
     notificationTimeoutRef.current = setTimeout(() => {
       setShowNotifications(false);
     }, 300); // 300ms delay
@@ -138,7 +141,7 @@ export default function Header() {
     const fetchAndCheckOrders = async () => {
       try {
         const latestOrders = await api.getUserOrders(userToken);
-        
+
         // If the user has changed since the last check, or if it's the very first fetch for this user,
         // just populate the ref and wait for the next poll to compare.
         if (previousOrdersRef.current.userId !== userInfo._id) {
@@ -151,10 +154,10 @@ export default function Header() {
         const newNotifications = [];
         latestOrders.forEach(newOrder => {
           const oldOrder = oldOrders.find(o => o._id === newOrder._id);
-          
-          
+
+
           if (oldOrder && oldOrder.status === 'processing' && newOrder.status === 'completed') {
-            console.log("oldOrder", 1);
+
             newNotifications.push({
               id: newOrder._id,
               message: `Đơn hàng #${newOrder.transactionId.slice(-6)} đã được xác nhận!`,
@@ -163,11 +166,12 @@ export default function Header() {
           }
         });
 
-        
+
 
         if (newNotifications.length > 0) {
           setNotifications(prev => [...newNotifications, ...prev]);
-          
+          setBell(true); // Show the bell notification badge
+
         }
 
         // Always update the ref with the latest data for the current user.
@@ -208,15 +212,15 @@ export default function Header() {
 
 
   return (
-    <div style={{ 
-      backgroundColor: '#1a202c', 
-      color: '#e2e8f0', 
+    <div style={{
+      backgroundColor: '#1a202c',
+      color: '#e2e8f0',
       minHeight: '100vh',
       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
     }}>
       <Toaster position="top-center" reverseOrder={false} />
 
-      <header style={{ 
+      <header style={{
         position: 'fixed',
         top: 0,
         left: 0,
@@ -227,10 +231,10 @@ export default function Header() {
         padding: '0 4%'
       }}>
 
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
           padding: '1.5rem 0',
           maxWidth: '1200px',
           margin: '0 auto'
@@ -261,14 +265,14 @@ export default function Header() {
                   <span style={{ color: '#cbd5e0' }}>Chào, {userInfo.name}</span>
 
                   {/* Notification Area */}
-                  <div 
+                  <div
                     style={{ position: 'relative' }}
                     onMouseEnter={handleNotificationEnter}
                     onMouseLeave={handleNotificationLeave}
                   >
                     <div style={{ color: '#cbd5e0', cursor: 'pointer', position: 'relative', padding: '0.5rem' }}>
                       <span role="img" aria-label="notifications">🔔</span>
-                      {notifications.length > 0 && (
+                      {bell && notifications.length > 0 && (
                         <span style={{
                           position: 'absolute',
                           top: '0',
@@ -304,11 +308,11 @@ export default function Header() {
                         <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #4a5568', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <h4 style={{ margin: 0 }}>Thông báo</h4>
                           {notifications.length > 0 && (
-                            <button 
+                            <button
                               onClick={() => {
                                 setNotifications([]);
                                 setShowNotifications(false); // Also hide the dropdown
-                              }} 
+                              }}
                               style={{ background: 'none', border: 'none', color: '#63b3ed', cursor: 'pointer', fontSize: '0.8rem' }}
                             >Xóa tất cả</button>
                           )}
@@ -339,14 +343,14 @@ export default function Header() {
               )}
             </div>
           </nav>
-          </div>
-        </header>
-        <main style={{ 
+        </div>
+      </header>
+      <main style={{
         paddingTop: '90px', // Điều chỉnh theo chiều cao header
         paddingLeft: '4%',
         paddingRight: '4%'
       }}><Outlet /></main>
-      </div>
-   
+    </div>
+
   );
 }

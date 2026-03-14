@@ -91,6 +91,8 @@ router.get('/products/:id/history', adminAuth, async (req, res) => {
       query.createdAt = { $gte: startDate, $lt: endDate };
     }
 
+    console.log('Inventory history query:', query);
+
     const history = await InventoryLog.find(query)
       .populate({
           path: 'relatedTransaction',
@@ -101,6 +103,7 @@ router.get('/products/:id/history', adminAuth, async (req, res) => {
           select: 'name email'
       })
       .sort({ createdAt: -1 });
+
 
     res.json(history);
   } catch (error) {
@@ -249,20 +252,33 @@ router.delete('/users/:id', adminAuth, async (req, res) => {
 // @access  Private/Admin
 router.put('/users/:id', adminAuth, async (req, res) => {
   try {
-    const { name, email } = req.body;
+    const { name, email, password, confirmPassword } = req.body;
     const updates = {};
     if (name) updates.name = name;
     if (email) updates.email = email;
 
-    // Prevent password updates from this endpoint for security
-    if (req.body.password) {
-      return res.status(400).json({ error: 'Password cannot be updated from this endpoint.' });
+    if (password) {
+      if (password !== confirmPassword) {
+        return res.status(400).json({ error: 'Passwords do not match.' });
+      }
+      
+      let user = await User.findById(req.params.id);
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      
+      if (name) user.name = name;
+      if (email) user.email = email;
+      user.password = password; // Trigger pre('save') hook in User model to hash with bcrypt
+      await user.save();
+      
+      user = user.toObject();
+      delete user.password;
+      return res.json(user);
+    } else {
+      // If no new password, update name/email via findByIdAndUpdate
+      const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true }).select('-password');
+      if (!user) return res.status(404).json({ error: 'User not found' });
+      return res.json(user);
     }
-
-    const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true }).select('-password');
-
-    if (!user) return res.status(404).json({ error: 'User not found' });
-    res.json(user);
   } catch (error) {
     console.error('Error updating user:', error);
     if (error.code === 11000) return res.status(400).json({ error: 'Email already in use.' });

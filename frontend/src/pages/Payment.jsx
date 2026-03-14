@@ -79,7 +79,10 @@ export default function Payment() {
     }
   }, [qrCodeData, transactionId, navigate]);
 
-  const closeModal = () => navigate(-1);
+  const closeModal = async () => {
+    await api.deletetransaction(transactionId); // Xóa giao dịch pending nếu người dùng hủy
+    navigate(-1); // Quay lại trang trước đó
+  }
 
   // User confirms they have sent the payment
   const handlePaymentSent = async () => {
@@ -112,7 +115,7 @@ export default function Payment() {
         return (
           <>
             <h3 style={modalStyles.modalHeader}>Có lỗi xảy ra</h3>
-            <p style={{color: 'red'}}>{error}</p>
+            <p style={{ color: 'red' }}>{error}</p>
             <button onClick={closeModal} style={modalStyles.closeButton}>Đóng</button>
           </>
         );
@@ -123,7 +126,7 @@ export default function Payment() {
             <h3 style={modalStyles.modalHeader}>Quét mã để thanh toán</h3>
             <img src={qrCodeData.qrDataURL} alt="VietQR Code" style={modalStyles.qrImage} />
             <div style={modalStyles.paymentInfo}>
-              <p style={{...modalStyles.infoLine, whiteSpace: 'nowrap'}}><strong>Số tiền:</strong> {qrCodeData.amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+              <p style={{ ...modalStyles.infoLine, whiteSpace: 'nowrap' }}><strong>Số tiền:</strong> {qrCodeData.amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
               <p style={modalStyles.infoLine}><strong>Nội dung:</strong> {qrCodeData.addInfo}</p>
             </div>
             <p style={{ color: '#555', fontSize: '0.9rem' }}>Sau khi chuyển khoản, vui lòng bấm nút xác nhận bên dưới.</p>

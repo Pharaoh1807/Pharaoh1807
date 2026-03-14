@@ -53,4 +53,19 @@ router.post('/confirm-mock', async (req, res) => {
   }
 });
 
+router.delete('/:transactionId', async (req, res) => {
+  try {
+    const transaction = await Transaction.findOneAndDelete({ transactionId: req.params.transactionId });
+
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transaction not found' });
+    }
+
+    res.json({ message: 'Transaction deleted successfully.' });
+  } catch (error) {
+    console.error('Error deleting transaction:', error);
+    res.status(500).json({ error: 'Server error while deleting transaction.' });
+  }
+});
+
 module.exports = router;

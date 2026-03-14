@@ -51,9 +51,12 @@ export default function UserDashboard() {
   const { orders, loading, error } = state;
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      dispatch({ type: 'FETCH_START' });
-      
+    // Determine whether to show loading indicator. Only show on initial load (orders.length === 0).
+    const fetchOrders = async (isInitialLoad = false) => {
+      if (isInitialLoad) {
+        dispatch({ type: 'FETCH_START' });
+      }
+
       const userToken = localStorage.getItem('user_token');
       if (!userToken) {
         dispatch({ type: 'FETCH_ERROR', payload: 'You need to be logged in to view this page.' });
@@ -62,17 +65,26 @@ export default function UserDashboard() {
 
       try {
         const data = await api.getUserOrders(userToken);
+        // Only update if data changed (prevent unnecessary re-renders)
+        // Since we are replacing the full list, use JSON.stringify as a simple comparison, or just dispatch.
+        // React's functional update on dispatch will re-render, but won't remount components if keys stay the same.
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
       } catch (err) {
-        dispatch({ type: 'FETCH_ERROR', payload: err.message || 'Could not load purchase history.' });
+        // We only want to show full error page if it's the initial load or a critical error.
+        // For background polling, we can choose to log it or update a silent error state.
+        if (isInitialLoad) {
+          dispatch({ type: 'FETCH_ERROR', payload: err.message || 'Could not load purchase history.' });
+        } else {
+          console.error('Background fetch error:', err);
+        }
       }
     };
 
-    fetchOrders();
+    fetchOrders(true); // Initial load
 
-    const intervalId = setInterval(fetchOrders, 15000); // Refresh every 10 seconds
+    const intervalId = setInterval(() => fetchOrders(false), 15000); // Background refresh every 15s without setting loading=true
     return () => clearInterval(intervalId); // Cleanup on unmount
-    
+
   }, []);
 
   const styles = {
@@ -113,10 +125,7 @@ export default function UserDashboard() {
     }
   };
 
-  if (loading) return <div style={styles.container}>Đang tải...</div>;
-  if (error) return <div style={styles.container}>{error}</div>;
-
-  // Calculate stats based on completed orders only
+  // Calculate stats based on completed orders only (safe to run on empty array)
   const completedOrders = orders.filter(order => order.status === 'completed');
   const totalProductsPurchased = completedOrders.reduce((acc, order) => acc + order.quantity, 0);
   const totalAmountSpent = completedOrders.reduce((acc, order) => acc + order.amount, 0);
@@ -124,13 +133,18 @@ export default function UserDashboard() {
   return (
     <div style={styles.container}>
       <h2 style={styles.header}>My Account</h2>
-      
+
+      {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
+
       <div style={styles.totalCount}>
         <span>Total Products Purchased: {totalProductsPurchased}</span>
         <span>Total Spent: {totalAmountSpent.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
       </div>
 
-      <h3>Lịch sử mua hàng</h3>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '1rem' }}>
+        <h3 style={{ margin: 0 }}>Lịch sử mua hàng</h3>
+        {orders.length === 0 && loading && <span style={{ fontSize: '0.9rem', color: '#a0aec0' }}>Đang tải...</span>}
+      </div>
       {orders.length > 0 ? (
         <div style={{ width: '100%' }}>
           {orders.map(order => (
@@ -146,14 +160,14 @@ export default function UserDashboard() {
                 </div>
               </div>
               <div style={styles.orderProduct}>
-                
-                
+
+
                 <img src={order.product?.imageUrls?.[0] || 'https://placehold.co/80x80'} alt={order.product?.name} style={styles.productImage} />
                 <div>
-                  <h4><Link to={`/products/${order.product?._id}`} style={{color: '#fff', textDecoration: 'none'}}>{order.product?.name || 'Sản phẩm không còn tồn tại'}</Link></h4>
-                  <p style={{margin: '0.25rem 0'}}>Quantity: {order.quantity}</p>
-                  <p style={{margin: '0.25rem 0'}}>Total Amount: {(order.amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
-                  <p style={{margin: '0.25rem 0', fontSize: '0.9rem', color: '#a0aec0'}}>Date: {new Date(order.createdAt).toLocaleString('vi-VN')}</p>
+                  <h4><Link to={`/products/${order.product?._id}`} style={{ color: '#fff', textDecoration: 'none' }}>{order.product?.name || 'Sản phẩm không còn tồn tại'}</Link></h4>
+                  <p style={{ margin: '0.25rem 0' }}>Quantity: {order.quantity}</p>
+                  <p style={{ margin: '0.25rem 0' }}>Total Amount: {(order.amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                  <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', color: '#a0aec0' }}>Date: {new Date(order.createdAt).toLocaleString('vi-VN')}</p>
                 </div>
               </div>
             </div>
