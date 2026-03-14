@@ -1,0 +1,45 @@
+name: Deploy React Frontend to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+    paths: # Chỉ chạy khi có thay đổi trong thư mục frontend (điều chỉnh theo cấu trúc dự án của bạn)
+      - 'frontend/**'
+      - '.github/workflows/deploy-frontend.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    # Nếu code React của bạn nằm trong thư mục con, hãy chỉ định working-directory
+    defaults:
+      run:
+        working-directory: ./frontend # Ví dụ: thư mục chứa code React là 'frontend'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json' # Đường dẫn đến file lock
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build with env
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./frontend/dist # Thư mục chứa file build (kết quả của 'npm run build')
+          publish_branch: gh-pages # Nhánh chứa file tĩnh để GitHub Pages đọc

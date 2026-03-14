@@ -1,0 +1,16 @@
+name: Deploy Node.js Backend to Render
+
+on:
+  push:
+    branches: ["main"]
+    paths: # Chỉ chạy khi có thay đổi trong thư mục backend
+      - 'backend/**'
+      - '.github/workflows/deploy-backend.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deploy
+        run: |
+          curl -X POST ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
