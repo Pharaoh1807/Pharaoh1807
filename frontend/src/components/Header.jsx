@@ -241,7 +241,7 @@ export default function Header() {
         }}>
 
           <Link to="/" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '1.5rem', fontWeight: 'bold' }}>
-            Nutrition Shop
+            Nutritions Shop - Hao Hao
           </Link>
           <nav>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
