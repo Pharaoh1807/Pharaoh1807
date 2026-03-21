@@ -1,6 +1,9 @@
-const pagesStyles = {container: {
+const pagesStyles = {
+  container: {
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
     color: '#e2e8f0',
+    maxWidth: '1200px',
+    margin: '0 auto',
   },
   header: {
     fontSize: '2rem',
@@ -11,7 +14,7 @@ const pagesStyles = {container: {
   },
   grid: {
     display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
     gap: '1.5rem',
   },
   productCard: {

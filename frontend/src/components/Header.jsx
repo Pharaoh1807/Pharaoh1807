@@ -212,130 +212,130 @@ export default function Header() {
 
 
   return (
-      <header style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        backgroundColor: '#1a202c',
-        borderBottom: '1px solid #4a5568',
-        zIndex: 1000,
-        padding: '0 4%'
+    <header style={{
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      backgroundColor: '#1a202c',
+      borderBottom: '1px solid #4a5568',
+      zIndex: 1000,
+      padding: '0 4%'
+    }}>
+
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '1.5rem 0',
+        maxWidth: '1200px',
+        margin: '0 auto'
       }}>
 
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '1.5rem 0',
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }}>
+        <Link to="/" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '1.5rem', fontWeight: 'bold' }}>
+          Nutritions Shop
+        </Link>
+        <nav>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            {isAdmin ? (
+              <>
+                <Link to="/admin/transactions" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                  Order
+                  {!pendingCountLoading && pendingTransactionsCount > 0 && (
+                    <span style={notificationBadgeStyle}>
+                      {pendingTransactionsCount}
+                    </span>
+                  )}
+                </Link>
+                <Link to="/admin/products" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>
+                  Dashboard
+                </Link>
+                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Log Out</button>
+              </>
+            ) : userInfo ? (
+              <>
+                <span style={{ color: '#cbd5e0' }}>Chào, {userInfo.name}</span>
 
-          <Link to="/" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '1.5rem', fontWeight: 'bold' }}>
-            Nutritions Shop - Hao Hao
-          </Link>
-          <nav>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-              {isAdmin ? (
-                <>
-                  <Link to="/admin/transactions" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                    Order
-                    {!pendingCountLoading && pendingTransactionsCount > 0 && (
-                      <span style={notificationBadgeStyle}>
-                        {pendingTransactionsCount}
+                {/* Notification Area */}
+                <div
+                  style={{ position: 'relative' }}
+                  onMouseEnter={handleNotificationEnter}
+                  onMouseLeave={handleNotificationLeave}
+                >
+                  <div style={{ color: '#cbd5e0', cursor: 'pointer', position: 'relative', padding: '0.5rem' }}>
+                    <span role="img" aria-label="notifications">🔔</span>
+                    {bell && notifications.length > 0 && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '0',
+                        right: '0',
+                        backgroundColor: '#e53e3e',
+                        color: 'white',
+                        borderRadius: '50%',
+                        width: '18px',
+                        height: '18px',
+                        fontSize: '0.7rem',
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}>
+                        {notifications.length}
                       </span>
                     )}
-                  </Link>
-                  <Link to="/admin/products" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>
-                    Dashboard
-                  </Link>
-                  <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Log Out</button>
-                </>
-              ) : userInfo ? (
-                <>
-                  <span style={{ color: '#cbd5e0' }}>Chào, {userInfo.name}</span>
-
-                  {/* Notification Area */}
-                  <div
-                    style={{ position: 'relative' }}
-                    onMouseEnter={handleNotificationEnter}
-                    onMouseLeave={handleNotificationLeave}
-                  >
-                    <div style={{ color: '#cbd5e0', cursor: 'pointer', position: 'relative', padding: '0.5rem' }}>
-                      <span role="img" aria-label="notifications">🔔</span>
-                      {bell && notifications.length > 0 && (
-                        <span style={{
-                          position: 'absolute',
-                          top: '0',
-                          right: '0',
-                          backgroundColor: '#e53e3e',
-                          color: 'white',
-                          borderRadius: '50%',
-                          width: '18px',
-                          height: '18px',
-                          fontSize: '0.7rem',
-                          fontWeight: 'bold',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-                        }}>
-                          {notifications.length}
-                        </span>
-                      )}
-                    </div>
-
-                    {showNotifications && (
-                      <div style={{
-                        position: 'absolute',
-                        top: '100%',
-                        right: 0,
-                        backgroundColor: '#2d3748',
-                        border: '1px solid #4a5568',
-                        borderRadius: '8px',
-                        width: '300px',
-                        zIndex: 1001,
-                        boxShadow: '0 5px 15px rgba(0,0,0,0.3)',
-                      }}>
-                        <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #4a5568', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                          <h4 style={{ margin: 0 }}>Thông báo</h4>
-                          {notifications.length > 0 && (
-                            <button
-                              onClick={() => {
-                                setNotifications([]);
-                                setShowNotifications(false); // Also hide the dropdown
-                              }}
-                              style={{ background: 'none', border: 'none', color: '#63b3ed', cursor: 'pointer', fontSize: '0.8rem' }}
-                            >Xóa tất cả</button>
-                          )}
-                        </div>
-                        <ul style={{ listStyle: 'none', margin: 0, padding: 0, maxHeight: '400px', overflowY: 'auto' }}>
-                          {notifications.length > 0 ? (
-                            notifications.map(notif => (
-                              <li key={notif.id} style={{ borderBottom: '1px solid #4a5568' }}>
-                                <Link to={notif.link} onClick={() => setShowNotifications(false)} style={{ display: 'block', padding: '0.75rem 1rem', color: '#e2e8f0', textDecoration: 'none', transition: 'background-color 0.2s' }}>
-                                  {notif.message}
-                                </Link>
-                              </li>
-                            ))
-                          ) : (
-                            <li style={{ padding: '1.5rem 1rem', textAlign: 'center', color: '#a0aec0' }}>Không có thông báo mới.</li>
-                          )}
-                        </ul>
-                      </div>
-                    )}
                   </div>
-                  <Link to="/user/dashboard" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>Account</Link>
-                  <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Log Out</button>
-                </>
-              ) : (
-                <Link to="/user/login" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>
-                  Log In
-                </Link>
-              )}
-            </div>
-          </nav>
-        </div>
-      </header>
+
+                  {showNotifications && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '100%',
+                      right: 0,
+                      backgroundColor: '#2d3748',
+                      border: '1px solid #4a5568',
+                      borderRadius: '8px',
+                      width: '300px',
+                      zIndex: 1001,
+                      boxShadow: '0 5px 15px rgba(0,0,0,0.3)',
+                    }}>
+                      <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #4a5568', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h4 style={{ margin: 0 }}>Thông báo</h4>
+                        {notifications.length > 0 && (
+                          <button
+                            onClick={() => {
+                              setNotifications([]);
+                              setShowNotifications(false); // Also hide the dropdown
+                            }}
+                            style={{ background: 'none', border: 'none', color: '#63b3ed', cursor: 'pointer', fontSize: '0.8rem' }}
+                          >Xóa tất cả</button>
+                        )}
+                      </div>
+                      <ul style={{ listStyle: 'none', margin: 0, padding: 0, maxHeight: '400px', overflowY: 'auto' }}>
+                        {notifications.length > 0 ? (
+                          notifications.map(notif => (
+                            <li key={notif.id} style={{ borderBottom: '1px solid #4a5568' }}>
+                              <Link to={notif.link} onClick={() => setShowNotifications(false)} style={{ display: 'block', padding: '0.75rem 1rem', color: '#e2e8f0', textDecoration: 'none', transition: 'background-color 0.2s' }}>
+                                {notif.message}
+                              </Link>
+                            </li>
+                          ))
+                        ) : (
+                          <li style={{ padding: '1.5rem 1rem', textAlign: 'center', color: '#a0aec0' }}>Không có thông báo mới.</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+                <Link to="/user/dashboard" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>Account</Link>
+                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Log Out</button>
+              </>
+            ) : (
+              <Link to="/user/login" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>
+                Log In
+              </Link>
+            )}
+          </div>
+        </nav>
+      </div>
+    </header>
   );
 }
