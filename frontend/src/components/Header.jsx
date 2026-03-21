@@ -232,8 +232,13 @@ export default function Header() {
         margin: '0 auto'
       }}>
 
-        <Link to="/" style={{ color: '#ffffff', textDecoration: 'none', fontSize: '1.5rem', fontWeight: 'bold' }}>
-          Nutritions Shop
+        {/* Thay link ảnh dưới đây bằng link logo thật của bạn */}
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <img
+            src="https://cdn.openart.ai/openart-ai/production/2026-03/create-image/VPxTg27RaO35zQg0C8ri/image_1774109847637_b6a85db5_1774109847669_b1f35dc7.jpg"
+            alt="Shop Logo"
+            style={{ height: '40px', objectFit: 'contain' }}
+          />
         </Link>
         <nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
