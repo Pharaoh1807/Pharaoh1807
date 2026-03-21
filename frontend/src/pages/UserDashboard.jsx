@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 import { api } from '../api';
 import pagesStyles from '../styles/pagesStyles';
 import { Link } from 'react-router-dom';
@@ -49,6 +49,9 @@ const getOrderStatusInfo = (status) => {
 export default function UserDashboard() {
   const [state, dispatch] = useReducer(orderReducer, initialState);
   const { orders, loading, error } = state;
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+  const [dateSort, setDateSort] = useState('newest');
 
   useEffect(() => {
     // Determine whether to show loading indicator. Only show on initial load (orders.length === 0).
@@ -130,6 +133,20 @@ export default function UserDashboard() {
   const totalProductsPurchased = completedOrders.reduce((acc, order) => acc + order.quantity, 0);
   const totalAmountSpent = completedOrders.reduce((acc, order) => acc + order.amount, 0);
 
+  // Apply filters and sorting
+  const filteredOrders = orders.filter(order => {
+    const matchesSearch = (order.product?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (order.transactionId || '').toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  }).sort((a, b) => {
+    const dateA = new Date(a.createdAt);
+    const dateB = new Date(b.createdAt);
+    if (dateSort === 'newest') return dateB - dateA;
+    if (dateSort === 'oldest') return dateA - dateB;
+    return 0;
+  });
+
   return (
     <div style={styles.container}>
       <h2 style={styles.header}>My Account</h2>
@@ -141,13 +158,86 @@ export default function UserDashboard() {
         <span>Total Spent: {totalAmountSpent.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
       </div>
 
+      <div style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '1rem',
+        marginBottom: '1.5rem',
+        backgroundColor: '#2d3748',
+        padding: '1rem',
+        borderRadius: '8px',
+        border: '1px solid #4a5568',
+        width: '100%',
+        alignItems: 'center'
+      }}>
+        <div style={{ flex: '1 1 200px' }}>
+          <input
+            type="text"
+            placeholder="Tìm theo tên sản phẩm, mã đơn..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              borderRadius: '6px',
+              border: '1px solid #4a5568',
+              backgroundColor: '#1a202c',
+              color: '#fff',
+              outline: 'none'
+            }}
+          />
+        </div>
+
+        <div style={{ flex: '1 1 150px' }}>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              borderRadius: '6px',
+              border: '1px solid #4a5568',
+              backgroundColor: '#1a202c',
+              color: '#fff',
+              outline: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="all">Tất cả trạng thái</option>
+            <option value="completed">Đã hoàn thành</option>
+            <option value="processing">Chờ xác nhận</option>
+            <option value="pending">Chờ thanh toán</option>
+          </select>
+        </div>
+
+        <div style={{ flex: '1 1 150px' }}>
+          <select
+            value={dateSort}
+            onChange={(e) => setDateSort(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              borderRadius: '6px',
+              border: '1px solid #4a5568',
+              backgroundColor: '#1a202c',
+              color: '#fff',
+              outline: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            <option value="newest">Mới nhất trước</option>
+            <option value="oldest">Cũ nhất trước</option>
+          </select>
+        </div>
+      </div>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '1rem' }}>
         <h3 style={{ margin: 0 }}>Lịch sử mua hàng</h3>
         {orders.length === 0 && loading && <span style={{ fontSize: '0.9rem', color: '#a0aec0' }}>Đang tải...</span>}
       </div>
-      {orders.length > 0 ? (
+      {filteredOrders.length > 0 ? (
         <div style={{ width: '100%' }}>
-          {orders.map(order => (
+          {filteredOrders.map(order => (
             <div key={order._id} style={styles.orderCard}>
               <div style={styles.orderHeader}>
                 <div>
@@ -174,7 +264,7 @@ export default function UserDashboard() {
           ))}
         </div>
       ) : (
-        <p>Bạn chưa mua sản phẩm nào.</p>
+        <p>{orders.length > 0 ? 'Không tìm thấy đơn hàng nào phù hợp với bộ lọc.' : 'Bạn chưa mua sản phẩm nào.'}</p>
       )}
     </div>
   );
