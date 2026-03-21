@@ -14,7 +14,7 @@ export default function App() {
       <Toaster position="top-center" reverseOrder={false} />
       <div style={{ padding: '0 4%' }}>
         <Header />
-        <main>
+        <main style={{ paddingTop: '90px' }}>
           <Outlet />
         </main>
         <Footer />

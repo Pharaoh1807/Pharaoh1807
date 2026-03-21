@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { api } from '../api';
-import { Toaster } from 'react-hot-toast';
+
 import { usePendingTransactionsCount } from '../hooks/usePendingTransactionsCount'; // Import the new hook
 
 export default function Header() {
@@ -212,14 +212,6 @@ export default function Header() {
 
 
   return (
-    <div style={{
-      backgroundColor: '#1a202c',
-      color: '#e2e8f0',
-      minHeight: '100vh',
-      fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
-    }}>
-      <Toaster position="top-center" reverseOrder={false} />
-
       <header style={{
         position: 'fixed',
         top: 0,
@@ -345,12 +337,5 @@ export default function Header() {
           </nav>
         </div>
       </header>
-      <main style={{
-        paddingTop: '90px', // Điều chỉnh theo chiều cao header
-        paddingLeft: '4%',
-        paddingRight: '4%'
-      }}><Outlet /></main>
-    </div>
-
   );
 }
