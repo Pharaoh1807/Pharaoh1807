@@ -17,11 +17,11 @@ export default function Shop() {
       linkUrl: "#" // Thay "#" bằng link đến sự kiện/sản phẩm
     },
     {
-      imageUrl: "https://placehold.co/1200x400/4a5568/ffffff?text=Banner+Shop+2",
+      imageUrl: "https://asset.imagine.art/processed/d0ca1bb6-6421-4893-b51d-9f2f31802101",
       linkUrl: "#"
     },
     {
-      imageUrl: "https://placehold.co/1200x400/2b6cb0/ffffff?text=Banner+Shop+3",
+      imageUrl: "https://asset.imagine.art/processed/d71bcb6c-6685-452a-b9e7-87ebbada2f1d",
       linkUrl: "#"
     }
   ];
