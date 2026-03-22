@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { api } from '../api';
 
 import { usePendingTransactionsCount } from '../hooks/usePendingTransactionsCount'; // Import the new hook
+import { useTheme } from '../context/ThemeContext';
 
 export default function Header() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -14,6 +15,7 @@ export default function Header() {
   const notificationTimeoutRef = useRef(null);
   const location = useLocation(); // Hook để theo dõi sự thay đổi đường dẫn
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
 
   const adminToken = localStorage.getItem('admin_token'); // Get admin token directly here
@@ -217,8 +219,8 @@ export default function Header() {
       top: 0,
       left: 0,
       right: 0,
-      backgroundColor: '#1a202c',
-      borderBottom: '1px solid #4a5568',
+      backgroundColor: 'var(--header-bg)',
+      borderBottom: '1px solid var(--border-color)',
       zIndex: 1000,
       padding: '0 4%'
     }}>
@@ -242,9 +244,16 @@ export default function Header() {
         </Link>
         <nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <button
+              onClick={toggleTheme}
+              style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '0.2rem' }}
+              title="Toggle Theme"
+            >
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
             {isAdmin ? (
               <>
-                <Link to="/admin/transactions" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
+                <Link to="/admin/transactions" style={{ color: 'var(--nav-link)', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
                   Order
                   {!pendingCountLoading && pendingTransactionsCount > 0 && (
                     <span style={notificationBadgeStyle}>
@@ -252,14 +261,14 @@ export default function Header() {
                     </span>
                   )}
                 </Link>
-                <Link to="/admin/products" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>
-                  Báo cáo
+                <Link to="/admin/products" style={{ color: 'var(--nav-link)', textDecoration: 'none', fontWeight: 'bold' }}>
+                  Dashboard
                 </Link>
-                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Đăng xuất</button>
+                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Log Out</button>
               </>
             ) : userInfo ? (
               <>
-                <span style={{ color: '#cbd5e0' }}>Chào, {userInfo.name}</span>
+                <span style={{ color: 'var(--nav-link)' }}>Chào, {userInfo.name}</span>
 
                 {/* Notification Area */}
                 <div
@@ -267,7 +276,7 @@ export default function Header() {
                   onMouseEnter={handleNotificationEnter}
                   onMouseLeave={handleNotificationLeave}
                 >
-                  <div style={{ color: '#cbd5e0', cursor: 'pointer', position: 'relative', padding: '0.5rem' }}>
+                  <div style={{ color: 'var(--nav-link)', cursor: 'pointer', position: 'relative', padding: '0.5rem' }}>
                     <span role="img" aria-label="notifications">🔔</span>
                     {bell && notifications.length > 0 && (
                       <span style={{
@@ -295,14 +304,14 @@ export default function Header() {
                       position: 'absolute',
                       top: '100%',
                       right: 0,
-                      backgroundColor: '#2d3748',
-                      border: '1px solid #4a5568',
+                      backgroundColor: 'var(--bg-color)',
+                      border: '1px solid var(--border-color)',
                       borderRadius: '8px',
                       width: '300px',
                       zIndex: 1001,
                       boxShadow: '0 5px 15px rgba(0,0,0,0.3)',
                     }}>
-                      <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #4a5568', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--border-color)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <h4 style={{ margin: 0 }}>Thông báo</h4>
                         {notifications.length > 0 && (
                           <button
@@ -317,25 +326,25 @@ export default function Header() {
                       <ul style={{ listStyle: 'none', margin: 0, padding: 0, maxHeight: '400px', overflowY: 'auto' }}>
                         {notifications.length > 0 ? (
                           notifications.map(notif => (
-                            <li key={notif.id} style={{ borderBottom: '1px solid #4a5568' }}>
-                              <Link to={notif.link} onClick={() => setShowNotifications(false)} style={{ display: 'block', padding: '0.75rem 1rem', color: '#e2e8f0', textDecoration: 'none', transition: 'background-color 0.2s' }}>
+                            <li key={notif.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                              <Link to={notif.link} onClick={() => setShowNotifications(false)} style={{ display: 'block', padding: '0.75rem 1rem', color: 'var(--text-main)', textDecoration: 'none', transition: 'background-color 0.2s' }}>
                                 {notif.message}
                               </Link>
                             </li>
                           ))
                         ) : (
-                          <li style={{ padding: '1.5rem 1rem', textAlign: 'center', color: '#a0aec0' }}>Không có thông báo mới.</li>
+                          <li style={{ padding: '1.5rem 1rem', textAlign: 'center', color: 'var(--text-muted)' }}>Không có thông báo mới.</li>
                         )}
                       </ul>
                     </div>
                   )}
                 </div>
-                <Link to="/user/dashboard" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>Tài khoản</Link>
-                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Đăng xuất</button>
+                <Link to="/user/dashboard" style={{ color: 'var(--nav-link)', textDecoration: 'none', fontWeight: 'bold' }}>Account</Link>
+                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Log Out</button>
               </>
             ) : (
-              <Link to="/user/login" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>
-                Đăng nhập
+              <Link to="/user/login" style={{ color: 'var(--nav-link)', textDecoration: 'none', fontWeight: 'bold' }}>
+                Log In
               </Link>
             )}
           </div>

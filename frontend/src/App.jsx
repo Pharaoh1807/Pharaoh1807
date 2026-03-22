@@ -6,8 +6,6 @@ import { Toaster } from 'react-hot-toast';
 export default function App() {
   return (
     <div style={{ 
-      backgroundColor: '#1a202c', 
-      color: '#e2e8f0', 
       minHeight: '100vh',
       fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif"
     }}>
