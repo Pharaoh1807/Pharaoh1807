@@ -120,7 +120,7 @@ export default function AdminUsers() {
   return (
     <div style={adminStyles.container}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'stretch', marginBottom: '1rem' }}>
-        <h2 style={{ ...adminStyles.header, borderBottom: 'none', alignSelf: 'center' }}>User Management</h2>
+        <h2 style={{ ...adminStyles.header, borderBottom: 'none', alignSelf: 'center' }}>Quản lý người dùng</h2>
         <div style={{
           ...adminStyles.statCard,
           borderRadius: '8px', // Bo tròn các góc
@@ -134,11 +134,11 @@ export default function AdminUsers() {
           flexDirection: 'column',
           justifyContent: 'center'
         }}>
-          <h3 style={{ ...adminStyles.statCardTitle, margin: '0 0 0.25rem 0', color: '#FFFFFF' }}>Total Users</h3>
+          <h3 style={{ ...adminStyles.statCardTitle, margin: '0 0 0.25rem 0', color: '#FFFFFF' }}>Tổng số người dùng</h3>
           <p style={{ ...adminStyles.statCardValue, margin: 0, color: '#FFFFFF' }}>{pagination.totalUsers}</p>
         </div>
         <button onClick={() => nav('/admin/products')} style={{ ...adminStyles.button, ...adminStyles.secondaryButton }}>
-          &larr; Back to Dashboard
+          &larr; Quay lại trang quản lý
         </button>
       </div>
 
@@ -146,10 +146,10 @@ export default function AdminUsers() {
         <table style={adminStyles.table}>
           <thead>
             <tr>
-              <th style={{ ...adminStyles.th, textAlign: 'left' }}>Name</th>
+              <th style={{ ...adminStyles.th, textAlign: 'left' }}>Tên</th>
               <th style={{ ...adminStyles.th, textAlign: 'left' }}>Email</th>
-              <th style={adminStyles.th}>Date Registered</th>
-              <th style={{ ...adminStyles.th, textAlign: 'center' }}>Actions</th>
+              <th style={adminStyles.th}>Ngày đăng ký</th>
+              <th style={{ ...adminStyles.th, textAlign: 'center' }}>Hành động</th>
             </tr>
           </thead>
           <tbody>

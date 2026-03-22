@@ -66,48 +66,48 @@ export default function AdminAddProduct() {
   return (
     <div style={adminStyles.centeredContainer}>
       <div style={adminStyles.formContainer}>
-        <h2 style={{...adminStyles.header, textAlign: 'center', borderBottom: 'none', marginBottom: '2rem'}}>
-          Add New Product
+        <h2 style={{ ...adminStyles.header, textAlign: 'center', borderBottom: 'none', marginBottom: '2rem' }}>
+          Thêm sản phẩm mới
         </h2>
         <form onSubmit={create} style={adminStyles.form}>
           <div style={adminStyles.inputGroup}>
-            <label htmlFor="name" style={adminStyles.label}>Product Name</label>
+            <label htmlFor="name" style={adminStyles.label}>Tên sản phẩm</label>
             <input id="name" name="name" placeholder="e.g. Whey Protein" value={form.name} onChange={handleFormChange} style={adminStyles.input} required />
           </div>
           <div style={adminStyles.inputGroup}>
-            <label style={adminStyles.label}>Image URLs</label>
+            <label style={adminStyles.label}>URL hình ảnh</label>
             {form.imageUrls.map((url, index) => (
               <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.75rem', gap: '0.5rem' }}>
                 <input
                   type="url"
-                  placeholder={`Image URL ${index + 1}`}
+                  placeholder={`URL hình ảnh ${index + 1}`}
                   value={url}
                   onChange={(e) => handleImageUrlChange(index, e.target.value)}
                   style={{ ...adminStyles.input, flexGrow: 1 }}
                 />
                 {form.imageUrls.length > 1 && (
                   <button type="button" onClick={() => removeImageUrlField(index)} style={{ ...adminStyles.button, ...adminStyles.dangerButton, padding: '0.5rem 0.75rem', fontSize: '0.9rem' }}>
-                    Remove
+                    Xóa
                   </button>
                 )}
               </div>
             ))}
             <button type="button" onClick={addImageUrlField} style={{ ...adminStyles.button, ...adminStyles.secondaryButton, marginTop: '0.5rem' }}>
-              Add Another Image URL
+              Thêm URL hình ảnh
             </button>
           </div>
           <div style={adminStyles.inputGroup}>
-            <label htmlFor="description" style={adminStyles.label}>Description</label>
-            <textarea id="description" name="description" placeholder="Short description for shop page" value={form.description} onChange={handleFormChange} style={adminStyles.textarea} />
+            <label htmlFor="description" style={adminStyles.label}>Mô tả ngắn</label>
+            <textarea id="description" name="description" placeholder="Mô tả ngắn" value={form.description} onChange={handleFormChange} style={adminStyles.textarea} />
           </div>
 
           <div style={adminStyles.inputGroup}>
-            <label htmlFor="longDescriptionescription" style={adminStyles.label}>Long Description</label>
-            <textarea id="longDescription" name="longDescription" placeholder="Long description for shop page" value={form.longDescription} onChange={handleFormChange} style={adminStyles.textarea} />
+            <label htmlFor="longDescriptionescription" style={adminStyles.label}>Mô tả chi tiết</label>
+            <textarea id="longDescription" name="longDescription" placeholder="Mô tả chi tiết" value={form.longDescription} onChange={handleFormChange} style={adminStyles.textarea} />
           </div>
 
           <div style={adminStyles.inputGroup}>
-            <label htmlFor="priceCents" style={adminStyles.label}>Price (in cents)</label>
+            <label htmlFor="priceCents" style={adminStyles.label}>Giá (VNĐ)</label>
             <input
               id="priceCents"
               type="number"
@@ -120,7 +120,7 @@ export default function AdminAddProduct() {
             />
           </div>
           <div style={adminStyles.inputGroup}>
-            <label htmlFor="stock" style={adminStyles.label}>Stock Quantity</label>
+            <label htmlFor="stock" style={adminStyles.label}>Số lượng tồn kho</label>
             <input
               id="stock"
               type="number"
@@ -139,15 +139,15 @@ export default function AdminAddProduct() {
                 name="active"
                 checked={form.active}
                 onChange={handleFormChange}
-              /> Active
+              /> Hiện
             </label>
           </div>
           <div style={adminStyles.buttonGroup}>
             <button type="button" onClick={() => nav('/admin/products')} style={{ ...adminStyles.button, ...adminStyles.cancelButton }}>
-              Cancel
+              Hủy
             </button>
             <button type="submit" style={{ ...adminStyles.button, ...adminStyles.primaryButton }}>
-              Save Product
+              Lưu sản phẩm
             </button>
           </div>
         </form>

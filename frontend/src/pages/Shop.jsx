@@ -125,7 +125,7 @@ export default function Shop() {
         </div>
       </div>
 
-      <h2 style={pagesStyles.header}>Products</h2>
+      <h2 style={pagesStyles.header}>Sản phẩm</h2>
 
       {/* Bộ lọc tên sản phẩm */}
       <div style={{ marginBottom: '2rem' }}>

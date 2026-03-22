@@ -38,7 +38,7 @@ export default function AdminEditProduct() {
       const { name, description, longDescription, priceCents, imageUrls, active } = form;
       // Lọc ra các URL rỗng trước khi gửi đi
       const filteredImageUrls = imageUrls.filter(url => url && url.trim() !== '');
-      const payload = { name, description, longDescription, priceCents: Number(priceCents), imageUrls: filteredImageUrls, active};
+      const payload = { name, description, longDescription, priceCents: Number(priceCents), imageUrls: filteredImageUrls, active };
 
       await api.adminUpdate(token, id, payload);
       nav('/admin/products');
@@ -50,7 +50,7 @@ export default function AdminEditProduct() {
 
   const handleFormChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
+
     setForm(prevForm => ({
       ...prevForm,
       [name]: type === 'checkbox' ? checked : value
@@ -80,58 +80,58 @@ export default function AdminEditProduct() {
   };
 
   if (loading) {
-    return <div style={adminStyles.centeredContainer}>Loading product...</div>;
+    return <div style={adminStyles.centeredContainer}>Đang tải sản phẩm...</div>;
   }
 
   if (!form) {
-    return <div style={adminStyles.centeredContainer}>Product not found.</div>;
+    return <div style={adminStyles.centeredContainer}>Không tìm thấy sản phẩm.</div>;
   }
 
   return (
     <div style={adminStyles.centeredContainer}>
       <div style={adminStyles.formContainer}>
-        <h2 style={{...adminStyles.header, textAlign: 'center', borderBottom: 'none', marginBottom: '2rem'}}>
+        <h2 style={{ ...adminStyles.header, textAlign: 'center', borderBottom: 'none', marginBottom: '2rem' }}>
           Edit Product
         </h2>
         <form onSubmit={update} style={adminStyles.form}>
           <div style={adminStyles.inputGroup}>
-            <label htmlFor="name" style={adminStyles.label}>Product Name</label>
+            <label htmlFor="name" style={adminStyles.label}>Tên sản phẩm</label>
             <input id="name" name="name" placeholder="e.g. Whey Protein" value={form.name} onChange={handleFormChange} style={adminStyles.input} required />
           </div>
 
           <div style={adminStyles.inputGroup}>
-            <label style={adminStyles.label}>Image URLs</label>
+            <label style={adminStyles.label}>URL hình ảnh</label>
             {form.imageUrls && form.imageUrls.map((url, index) => (
               <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.75rem', gap: '0.5rem' }}>
                 <input
                   type="url"
-                  placeholder={`Image URL ${index + 1}`}
+                  placeholder={`URL hình ảnh ${index + 1}`}
                   value={url}
                   onChange={(e) => handleImageUrlChange(index, e.target.value)}
                   style={{ ...adminStyles.input, flexGrow: 1 }}
                 />
                 {form.imageUrls.length > 1 && (
                   <button type="button" onClick={() => removeImageUrlField(index)} style={{ ...adminStyles.button, ...adminStyles.dangerButton, padding: '0.5rem 0.75rem', fontSize: '0.9rem' }}>
-                    Remove
+                    Xóa
                   </button>
                 )}
               </div>
             ))}
             <button type="button" onClick={addImageUrlField} style={{ ...adminStyles.button, ...adminStyles.secondaryButton, marginTop: '0.5rem' }}>
-              Add Another Image URL
+              Thêm URL hình ảnh
             </button>
           </div>
 
           <div style={adminStyles.inputGroup}>
-            <label htmlFor="description" style={adminStyles.label}>Description</label>
-            <textarea id="description" name="description" placeholder="Short description for shop page" value={form.description || ''} onChange={handleFormChange} style={adminStyles.textarea} />
+            <label htmlFor="description" style={adminStyles.label}>Mô tả ngắn</label>
+            <textarea id="description" name="description" placeholder="Mô tả ngắn" value={form.description || ''} onChange={handleFormChange} style={adminStyles.textarea} />
           </div>
           <div style={adminStyles.inputGroup}>
-            <label htmlFor="longDescription" style={adminStyles.label}>Long Description</label>
-            <textarea id="longDescription" name="longDescription" placeholder="Detailed product information for product page" value={form.longDescription || ''} onChange={handleFormChange} style={{...adminStyles.textarea, height: '200px'}} />
+            <label htmlFor="longDescription" style={adminStyles.label}>Mô tả chi tiết</label>
+            <textarea id="longDescription" name="longDescription" placeholder="Mô tả chi tiết" value={form.longDescription || ''} onChange={handleFormChange} style={{ ...adminStyles.textarea, height: '200px' }} />
           </div>
           <div style={adminStyles.inputGroup}>
-            <label htmlFor="priceCents" style={adminStyles.label}>Price (in cents)</label>
+            <label htmlFor="priceCents" style={adminStyles.label}>Giá (VNĐ)</label>
             <input
               id="priceCents"
               type="number"
@@ -143,24 +143,24 @@ export default function AdminEditProduct() {
               required
             />
           </div>
-          
-          
+
+
           <div style={adminStyles.inputGroup}>
             <label style={adminStyles.checkboxLabel}>
               <input
                 type="checkbox"
                 name="active"
                 checked={form.active}
-                onChange={ (e) =>  handleFormChange(e)}
-              /> Active
+                onChange={(e) => handleFormChange(e)}
+              /> Hiện
             </label>
           </div>
           <div style={adminStyles.buttonGroup}>
             <button type="button" onClick={() => nav('/admin/products')} style={{ ...adminStyles.button, ...adminStyles.cancelButton }}>
-              Cancel
+              Hủy
             </button>
             <button type="submit" style={{ ...adminStyles.button, ...adminStyles.primaryButton }}>
-              Save Changes
+              Lưu thay đổi
             </button>
           </div>
         </form>

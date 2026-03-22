@@ -63,7 +63,7 @@ export default function Footer() {
         <div style={gridStyle}>
           {/* Column 1: About */}
           <div>
-            <h3 style={sectionTitleStyle}>Nutrition Shop</h3>
+            <h3 style={sectionTitleStyle}>Nutritions Shop</h3>
             <p style={{ color: '#a0aec0', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '1rem' }}>
               Cung cấp sản phẩm dinh dưỡng chất lượng cao cho sức khỏe và thể thao.
             </p>
@@ -124,7 +124,7 @@ export default function Footer() {
               <span role="img" aria-label="phone">📞</span> (028) 3577 896
             </p>
             <p style={{ color: '#a0aec0', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-              <span role="img" aria-label="email">✉️</span> support@nutritionshop.com
+              <span role="img" aria-label="email">✉️</span> support@nutritionsshop.com
             </p>
             <p style={{ color: '#a0aec0', fontSize: '0.9rem' }}>
               <span role="img" aria-label="time">🕒</span> T2 - T6: 8:00 - 20:00
@@ -134,7 +134,7 @@ export default function Footer() {
 
         {/* Bottom Bar */}
         <div style={bottomBarStyle}>
-          <p>© {currentYear} Nutrition Shop. Tất cả các quyền được bảo lưu.</p>
+          <p>© {currentYear} Nutritions Shop. Tất cả các quyền được bảo lưu.</p>
           <p style={{ marginTop: '0.5rem' }}>
             <Link to="/terms" style={{ color: '#a0aec0', textDecoration: 'none' }} onMouseEnter={(e) => e.target.style.color = '#ffffff'} onMouseLeave={(e) => e.target.style.color = '#a0aec0'}>
               Điều khoản sử dụng

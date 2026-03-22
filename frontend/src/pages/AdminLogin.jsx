@@ -42,19 +42,19 @@ export default function AdminLogin() {
 
   return (
     <div style={adminStyles.centeredContainer}>
-      <div style={{...adminStyles.formContainer, maxWidth: '400px'}}>
-        <h2 style={{...adminStyles.header, textAlign: 'center', borderBottom: 'none'}}>Admin Login</h2>
+      <div style={{ ...adminStyles.formContainer, maxWidth: '400px' }}>
+        <h2 style={{ ...adminStyles.header, textAlign: 'center', borderBottom: 'none' }}>Đăng nhập Admin</h2>
         <form onSubmit={submit} style={adminStyles.form}>
           <div style={adminStyles.inputGroup}>
             <label htmlFor="email" style={adminStyles.label}>Email</label>
             <input id="email" style={adminStyles.input} value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
           <div style={adminStyles.inputGroup}>
-            <label htmlFor="password" style={adminStyles.label}>Password</label>
+            <label htmlFor="password" style={adminStyles.label}>Mật khẩu</label>
             <input id="password" type="password" style={adminStyles.input} value={password} onChange={e => setPassword(e.target.value)} required />
           </div>
           <button disabled={busy} style={{ ...adminStyles.button, ...adminStyles.primaryButton, ...(busy ? adminStyles.buttonDisabled : {}) }}>
-            {busy ? 'Logging in...' : 'Login'}
+            {busy ? 'Đang đăng nhập...' : 'Đăng nhập'}
           </button>
         </form>
       </div>

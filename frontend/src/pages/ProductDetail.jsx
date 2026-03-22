@@ -310,7 +310,7 @@ export default function ProductDetail() {
 
   return (
     <div style={detailStyles.container}>
-      
+
       <div style={detailStyles.content}>
         <div
           style={{
@@ -327,18 +327,18 @@ export default function ProductDetail() {
           {product.imageUrls && product.imageUrls.length > 1 && (
             <>
               {currentIndex > 0 && (
-                <button style={{...detailStyles.arrow, ...detailStyles.arrowLeft}} onClick={showPrevImage} aria-label="Previous Image">&#10094;</button>
+                <button style={{ ...detailStyles.arrow, ...detailStyles.arrowLeft }} onClick={showPrevImage} aria-label="Previous Image">&#10094;</button>
               )}
               {currentIndex < product.imageUrls.length - 1 && (
-                <button style={{...detailStyles.arrow, ...detailStyles.arrowRight}} onClick={showNextImage} aria-label="Next Image">&#10095;</button>
+                <button style={{ ...detailStyles.arrow, ...detailStyles.arrowRight }} onClick={showNextImage} aria-label="Next Image">&#10095;</button>
               )}
             </>
           )}
 
-          
+
 
           {/* Image Slider */}
-          <div style={{...sliderStyles.track, transform: `translateX(-${currentIndex * 100}%)`}}>
+          <div style={{ ...sliderStyles.track, transform: `translateX(-${currentIndex * 100}%)` }}>
             {product.imageUrls.map((url, index) => (
               <div key={index} style={sliderStyles.slide}>
                 <img src={url} alt={`${product.name} image ${index + 1}`} style={sliderStyles.image} />
@@ -346,16 +346,16 @@ export default function ProductDetail() {
             ))}
           </div>
 
-           {/* Dot Indicators */}
-           {product.imageUrls && product.imageUrls.length > 1 && (
+          {/* Dot Indicators */}
+          {product.imageUrls && product.imageUrls.length > 1 && (
             <div style={sliderStyles.dotsContainer}>
               {product.imageUrls.map((_, index) => (
-                <button key={index} style={{...sliderStyles.dot, ...(currentIndex === index ? sliderStyles.dotActive : {})}} onClick={() => setCurrentIndex(index)} aria-label={`Go to image ${index + 1}`} />
+                <button key={index} style={{ ...sliderStyles.dot, ...(currentIndex === index ? sliderStyles.dotActive : {}) }} onClick={() => setCurrentIndex(index)} aria-label={`Go to image ${index + 1}`} />
               ))}
             </div>
           )}
 
-         
+
 
           {/* Thumbnail Gallery */}
           {product.imageUrls && product.imageUrls.length > 1 && (
@@ -378,19 +378,19 @@ export default function ProductDetail() {
         <div style={detailStyles.infoContainer}>
           <h2 style={pagesStyles.header}>{product.name}</h2>
           {/* Hiển thị mô tả ngắn */}
-          <p style={{...pagesStyles.productDescription, fontSize: '1.1rem', lineHeight: '1.6'}}>
+          <p style={{ ...pagesStyles.productDescription, fontSize: '1.1rem', lineHeight: '1.6' }}>
             {product.description}
           </p>
 
           {product.stock > 0 ? (
             <>
-              <div style={{marginTop: '2rem'}}>
-                <label style={{display: 'block', marginBottom: '0.5rem', fontSize: '1.1rem', fontWeight: 'bold', textAlign: 'center'}}>Quantity:</label>
+              <div style={{ marginTop: '2rem' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '1.1rem', fontWeight: 'bold', textAlign: 'center' }}>Số lượng:</label>
                 <div style={quantitySelectorStyles.container}>
                   <button onClick={decreaseQuantity} style={quantitySelectorStyles.button}>-</button>
-                  <input 
-                    type="number" 
-                    value={quantity} 
+                  <input
+                    type="number"
+                    value={quantity}
                     onChange={(e) => {
                       const val = parseInt(e.target.value, 10);
                       if (!isNaN(val) && val > 0) {
@@ -403,7 +403,7 @@ export default function ProductDetail() {
                     onClick={increaseQuantity}
                     style={{
                       ...quantitySelectorStyles.button,
-                      
+
                       ...(quantity >= product.stock ? quantitySelectorStyles.disabledButton : {}),
                       cursor: "pointer"
                     }}
@@ -412,11 +412,11 @@ export default function ProductDetail() {
                     +
                   </button>
                 </div>
-                <p style={{textAlign: 'center', color: '#a0aec0', fontSize: '0.9rem'}}>Available: {product.stock} products</p>
+                <p style={{ textAlign: 'center', color: '#a0aec0', fontSize: '0.9rem' }}>Có sẵn: {product.stock} sản phẩm</p>
               </div>
 
-              <strong style={{...pagesStyles.productPrice, fontSize: '1.8rem', display: 'block', marginBottom: '1rem', color: '#48bb78', textAlign: 'center'}}>
-                Total Amount: {(product.priceCents * (quantity || 1)).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+              <strong style={{ ...pagesStyles.productPrice, fontSize: '1.8rem', display: 'block', marginBottom: '1rem', color: '#48bb78', textAlign: 'center' }}>
+                Tổng tiền: {(product.priceCents * (quantity || 1)).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
               </strong>
 
               <button
@@ -449,7 +449,7 @@ export default function ProductDetail() {
       {/* Long Description Section */}
       {product.longDescription && (
         <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid #4a5568' }}>
-          <h3 style={pagesStyles.header}>Detailed Description</h3>
+          <h3 style={pagesStyles.header}>Mô tả chi tiết</h3>
           <div style={{ fontSize: '1.1rem', lineHeight: '1.7', whiteSpace: 'pre-wrap', color: '#cbd5e0' }}>
             {product.longDescription}
           </div>
@@ -459,12 +459,12 @@ export default function ProductDetail() {
       {/* Related Products Section */}
       {relatedProducts.length > 0 && (
         <div style={{ marginTop: '5rem', paddingTop: '2rem', borderTop: '1px solid #4a5568' }}>
-          <h3 style={pagesStyles.header}>Related Products</h3>
+          <h3 style={pagesStyles.header}>Những sản phẩm liên quan</h3>
           <div style={pagesStyles.grid}>
             {relatedProducts.map(p => (
-              <div 
-                key={p._id} 
-                style={{...pagesStyles.productCard, cursor: 'pointer'}} 
+              <div
+                key={p._id}
+                style={{ ...pagesStyles.productCard, cursor: 'pointer' }}
                 onClick={() => navigate(`/products/${p._id}`)}
               >
                 {p.imageUrls && p.imageUrls[0] && <img src={p.imageUrls[0]} alt={p.name} style={relatedProductImageStyle} />}
@@ -477,8 +477,8 @@ export default function ProductDetail() {
         </div>
       )}
 
-      <button onClick={() => navigate(-1)} style={{...detailStyles.backButton, marginTop: '5rem'}} >
-        &larr; Back
+      <button onClick={() => navigate(-1)} style={{ ...detailStyles.backButton, marginTop: '5rem' }} >
+        &larr; Quay lại
       </button>
     </div>
   );

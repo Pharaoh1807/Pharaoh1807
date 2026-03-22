@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { createHashRouter, RouterProvider } from 'react-router-dom'; import App from './App.jsx';
+import { createHashRouter, RouterProvider } from 'react-router-dom'; 
+import App from './App.jsx';
 import Shop from './pages/Shop.jsx';
 import Success from './pages/Success.jsx';
 import Cancel from './pages/Cancel.jsx';
@@ -19,6 +20,7 @@ import ProtectedRoute from './components/ProtectedRoute.jsx';
 import AdminTransactionsPage from './pages/AdminTransactionsPage.jsx';
 import AdminProductHistory from './pages/AdminProductHistory.jsx';
 import NotFound from './pages/NotFound.jsx';
+import { ThemeProvider } from './context/ThemeContext.jsx';
 
 
 const router = createHashRouter([
@@ -56,6 +58,8 @@ const router = createHashRouter([
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>
   </React.StrictMode>
 );

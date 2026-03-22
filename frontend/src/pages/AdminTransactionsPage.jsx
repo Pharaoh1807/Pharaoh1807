@@ -78,7 +78,7 @@ const UserSalesReport = ({ transactions }) => {
   const filteredUserGroups = useMemo(() => {
     if (!searchTerm) return groupedTransactions;
     const lowerCaseSearch = searchTerm.toLowerCase();
-    return groupedTransactions.filter(group => 
+    return groupedTransactions.filter(group =>
       group.user.name.toLowerCase().includes(lowerCaseSearch) ||
       group.user.email.toLowerCase().includes(lowerCaseSearch)
     );
@@ -106,7 +106,7 @@ const UserSalesReport = ({ transactions }) => {
 
     return userTransactions.filter(t => {
       const productNameMatch = !filters.productName || (t.product?.name || '').toLowerCase().includes(filters.productName.toLowerCase());
-      
+
       const date = new Date(t.createdAt);
       const yearMatch = !filters.year || date.getFullYear() === parseInt(filters.year, 10);
       const monthMatch = !filters.month || (date.getMonth() + 1) === parseInt(filters.month, 10);
@@ -118,7 +118,7 @@ const UserSalesReport = ({ transactions }) => {
 
   // Function to handle exporting data to Excel
   const handleExportToExcel = () => {
-    const dataToExport = filteredUserGroups.flatMap(group => 
+    const dataToExport = filteredUserGroups.flatMap(group =>
       group.transactions.map(t => ({
         'Tên người dùng': group.user.name,
         'Email người dùng': group.user.email,
@@ -164,7 +164,7 @@ const UserSalesReport = ({ transactions }) => {
           onChange={(e) => setSearchTerm(e.target.value)}
           style={{ ...adminStyles.input, width: '100%', maxWidth: '500px' }}
         />
-        <button onClick={handleExportToExcel} style={{...adminStyles.button, ...adminStyles.primaryButton}}>
+        <button onClick={handleExportToExcel} style={{ ...adminStyles.button, ...adminStyles.primaryButton }}>
           Xuất ra Excel
         </button>
       </div>
@@ -235,7 +235,7 @@ const UserSalesReport = ({ transactions }) => {
                       {(() => {
                         const userTransactions = getFilteredUserTransactions(userId, group.transactions);
                         if (userTransactions.length === 0) {
-                          return <tr><td colSpan="4" style={{...adminStyles.td, textAlign: 'center', padding: '1.5rem'}}>Không có giao dịch nào khớp với bộ lọc.</td></tr>;
+                          return <tr><td colSpan="4" style={{ ...adminStyles.td, textAlign: 'center', padding: '1.5rem' }}>Không có giao dịch nào khớp với bộ lọc.</td></tr>;
                         }
                         return userTransactions.map(t => (
                           <tr key={t._id}>
@@ -279,7 +279,7 @@ export default function AdminTransactionsPage() {
     if (isInitialLoad) setLoading(true);
     try {
       const latestTransactions = await api.getAdminTransactions(token);
-      
+
       if (isInitialLoad) {
         latestTransactions.forEach(t => {
           if (t.status === 'processing') seenProcessingIds.current.add(t._id);
@@ -297,7 +297,7 @@ export default function AdminTransactionsPage() {
           newProcessing.forEach(t => seenProcessingIds.current.add(t._id));
         }
       }
-      
+
       setTransactions(latestTransactions);
       setError('');
     } catch (err) {
@@ -387,23 +387,23 @@ export default function AdminTransactionsPage() {
 
 
       <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid #4a5568', paddingBottom: '1.5rem' }}>
-        <button 
+        <button
           onClick={() => setViewMode('management')}
-          style={{...adminStyles.button, marginRight: '1rem', backgroundColor: viewMode === 'management' ? '#4299e1' : '#4a5568' }}
+          style={{ ...adminStyles.button, marginRight: '1rem', backgroundColor: viewMode === 'management' ? '#4299e1' : '#4a5568' }}
         >
           Quản lý Giao dịch
         </button>
-        
-        <button 
+
+        <button
           onClick={() => setViewMode('byUser')}
-          style={{...adminStyles.button, backgroundColor: viewMode === 'byUser' ? '#4299e1' : '#4a5568' }}
+          style={{ ...adminStyles.button, backgroundColor: viewMode === 'byUser' ? '#4299e1' : '#4a5568' }}
         >
           Thống kê theo Người dùng
         </button>
       </div>
 
       {loading ? (
-        <p style={{textAlign: 'center', padding: '2rem'}}>Đang tải dữ liệu...</p>
+        <p style={{ textAlign: 'center', padding: '2rem' }}>Đang tải dữ liệu...</p>
       ) : viewMode === 'management' ? (
         <>
           <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
@@ -420,17 +420,18 @@ export default function AdminTransactionsPage() {
               Tất cả
             </FilterButton>
           </div>
-          <div style={{overflowX: 'auto'}}>
+          <div style={{ overflowX: 'auto' }}>
             <table style={adminStyles.table}>
               <thead>
                 <tr>
-                  <th style={adminStyles.th}>Date</th>
-                  <th style={adminStyles.th}>User</th>
-                  <th style={adminStyles.th}>Product</th>
-                  <th style={adminStyles.th}>Amount</th>
-                  <th style={adminStyles.th}>Transaction ID</th>
-                  <th style={adminStyles.th}>Status</th>
-                  <th style={adminStyles.th}>Actions</th>
+                  <th style={adminStyles.th}>Ngày</th>
+                  <th style={adminStyles.th}>Người dùng</th>
+                  <th style={adminStyles.th}>Sản phẩm</th>
+                  <th style={adminStyles.th}>Số lượng</th>
+                  <th style={adminStyles.th}>Thành tiền</th>
+                  <th style={adminStyles.th}>Mã giao dịch</th>
+                  <th style={adminStyles.th}>Trạng thái</th>
+                  <th style={adminStyles.th}>Hành động</th>
                 </tr>
               </thead>
               <tbody>
@@ -439,20 +440,20 @@ export default function AdminTransactionsPage() {
                     <tr key={transaction._id}>
                       <td style={adminStyles.td}>{new Date(transaction.createdAt).toLocaleString('vi-VN')}</td>
                       <td style={adminStyles.td}>
-                        {transaction.user?.name || 'N/A'}<br/>
-                        <span style={{fontSize: '0.8em', color: '#a0aec0'}}>({transaction.user?.email || 'N/A'})</span>
+                        {transaction.user?.name || 'N/A'}<br />
+                        <span style={{ fontSize: '0.8em', color: '#a0aec0' }}>({transaction.user?.email || 'N/A'})</span>
                       </td>
                       <td style={adminStyles.td}>{transaction.product?.name || 'N/A'}</td>
-                      <td style={{...adminStyles.td, whiteSpace: 'nowrap'}}>
+                      <td style={{ ...adminStyles.td, whiteSpace: 'nowrap' }}>
                         {(transaction.amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                       </td>
-                      <td style={{...adminStyles.td, wordBreak: 'break-all'}}>{transaction.transactionId}</td>
+                      <td style={{ ...adminStyles.td, wordBreak: 'break-all' }}>{transaction.transactionId}</td>
                       <td style={adminStyles.td}>
                         <span style={getStatusStyle(transaction.status)}>{transaction.status}</span>
                       </td>
                       <td style={adminStyles.td}>
                         {transaction.status === 'processing' && (
-                          <button 
+                          <button
                             onClick={() => handleConfirmPayment(transaction._id)}
                             disabled={confirmingId === transaction._id}
                             style={{ ...adminStyles.button, ...adminStyles.primaryButton, ...(confirmingId === transaction._id ? adminStyles.buttonDisabled : {}) }}
@@ -465,8 +466,8 @@ export default function AdminTransactionsPage() {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="7" style={{...adminStyles.td, textAlign: 'center', padding: '2rem'}}>
-                      No transactions found for this filter.
+                    <td colSpan="7" style={{ ...adminStyles.td, textAlign: 'center', padding: '2rem' }}>
+                      Không tìm thấy giao dịch nào.
                     </td>
                   </tr>
                 )}

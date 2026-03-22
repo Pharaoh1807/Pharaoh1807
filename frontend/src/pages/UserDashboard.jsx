@@ -149,13 +149,13 @@ export default function UserDashboard() {
 
   return (
     <div style={styles.container}>
-      <h2 style={styles.header}>My Account</h2>
+      <h2 style={styles.header}>Tài khoản của tôi</h2>
 
       {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
 
       <div style={styles.totalCount}>
-        <span>Total Products Purchased: {totalProductsPurchased}</span>
-        <span>Total Spent: {totalAmountSpent.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
+        <span>Tổng sản phẩm đã mua: {totalProductsPurchased}</span>
+        <span>Tổng tiền đã chi: {totalAmountSpent.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</span>
       </div>
 
       <div style={{
@@ -241,7 +241,7 @@ export default function UserDashboard() {
             <div key={order._id} style={styles.orderCard}>
               <div style={styles.orderHeader}>
                 <div>
-                  <strong>Order ID:</strong> {order.transactionId}
+                  <strong>Mã đơn hàng:</strong> {order.transactionId}
                 </div>
                 <div>
                   <span style={getOrderStatusInfo(order.status).style}>
@@ -255,9 +255,9 @@ export default function UserDashboard() {
                 <img src={order.product?.imageUrls?.[0] || 'https://placehold.co/80x80'} alt={order.product?.name} style={styles.productImage} />
                 <div>
                   <h4><Link to={`/products/${order.product?._id}`} style={{ color: '#fff', textDecoration: 'none' }}>{order.product?.name || 'Sản phẩm không còn tồn tại'}</Link></h4>
-                  <p style={{ margin: '0.25rem 0' }}>Quantity: {order.quantity}</p>
-                  <p style={{ margin: '0.25rem 0' }}>Total Amount: {(order.amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
-                  <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', color: '#a0aec0' }}>Date: {new Date(order.createdAt).toLocaleString('vi-VN')}</p>
+                  <p style={{ margin: '0.25rem 0' }}>Số lượng: {order.quantity}</p>
+                  <p style={{ margin: '0.25rem 0' }}>Tổng tiền: {(order.amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
+                  <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', color: '#a0aec0' }}>Ngày đặt: {new Date(order.createdAt).toLocaleString('vi-VN')}</p>
                 </div>
               </div>
             </div>

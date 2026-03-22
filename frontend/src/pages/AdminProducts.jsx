@@ -93,9 +93,9 @@ export default function AdminProducts() {
   return (
     <div style={adminStyles.container}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={adminStyles.header}>Admin Dashboard</h2>
+        <h2 style={adminStyles.header}>Trang quản lý</h2>
         <button onClick={logout} style={{ ...adminStyles.button, ...adminStyles.dangerButton }}>
-          Logout
+          Đăng xuất
         </button>
       </div>
 
@@ -108,13 +108,13 @@ export default function AdminProducts() {
         border: '1px solid #4a5568',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
-          <span style={{ fontSize: '1.1rem', color: '#cbd5e0' }}>Total Inventory:</span>
+          <span style={{ fontSize: '1.1rem', color: '#cbd5e0' }}>Tổng giá trị tồn kho:</span>
           <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#48bb78', whiteSpace: 'nowrap' }}>
             {totalValue ? totalValue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : '0 ₫'}
           </span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderTop: '1px solid #4a5568', marginTop: '0.5rem' }}>
-          <span style={{ fontSize: '1.1rem', color: '#cbd5e0' }}>Total Revenue:</span>
+          <span style={{ fontSize: '1.1rem', color: '#cbd5e0' }}>Tổng doanh thu:</span>
           <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#48bb78', whiteSpace: 'nowrap' }}>
             {totalRevenue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
           </span>
@@ -123,69 +123,69 @@ export default function AdminProducts() {
 
       <div style={adminStyles.dashboard}>
         <div style={adminStyles.statCard}>
-          <h3 style={adminStyles.statCardTitle}>Total Products</h3>
+          <h3 style={adminStyles.statCardTitle}>Tổng sản phẩm</h3>
           <p style={adminStyles.statCardValue}>{totalProducts}</p>
         </div>
         <div style={adminStyles.statCard}>
-          <h3 style={adminStyles.statCardTitle}>Active Products</h3>
+          <h3 style={adminStyles.statCardTitle}>Sản phẩm đang hoạt động</h3>
           <p style={adminStyles.statCardValue}>{activeProducts}</p>
         </div>
         <div style={{ ...adminStyles.statCard, cursor: 'pointer' }} onClick={() => nav('/admin/users')}>
-          <h3 style={adminStyles.statCardTitle}>Total Users</h3>
+          <h3 style={adminStyles.statCardTitle}>Tổng người dùng</h3>
           <p style={adminStyles.statCardValue}>{totalUsers}</p>
         </div>
         {/* New stat card for total quantity sold */}
         <div style={{ ...adminStyles.statCard, cursor: 'pointer' }} onClick={() => nav('/admin/transactions')}>
-          <h3 style={adminStyles.statCardTitle}>Total Items Sold</h3>
+          <h3 style={adminStyles.statCardTitle}>Tổng số lượng đã bán</h3>
           <p style={adminStyles.statCardValue}>{totalQuantitySold}</p>
         </div>
       </div>
-      
-<div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-        <h2 style={{ ...adminStyles.header, marginBottom: 0, borderBottom: 'none', fontSize: '1.5rem' }}>Product List</h2>
+
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <h2 style={{ ...adminStyles.header, marginBottom: 0, borderBottom: 'none', fontSize: '1.5rem' }}>Danh sách sản phẩm</h2>
         <button onClick={() => nav('/admin/products/addproduct')} style={{ ...adminStyles.button, ...adminStyles.primaryButton }}>
-          Add New Product
+          Thêm sản phẩm mới
         </button>
       </div>
 
       {loadingProducts ? (
-        <p style={{ color: '#e2e8f0', textAlign: 'center' }}>Loading products...</p>
+        <p style={{ color: '#e2e8f0', textAlign: 'center' }}>Đang tải sản phẩm...</p>
       ) : (
         <table style={adminStyles.table}>
           <thead>
             <tr>
-              <th style={{...adminStyles.th,textAlign: 'left', width: '40%'}}>Product</th>
-              <th style={{...adminStyles.th, textAlign: 'center'}}>Price</th>
-              <th style={{...adminStyles.th, textAlign: 'center'}}>Stock</th>
-              <th style={{...adminStyles.th, textAlign: 'center'}}>Status</th>
-              <th style={{...adminStyles.th, textAlign: 'center'}}>Actions</th>
+              <th style={{ ...adminStyles.th, textAlign: 'left', width: '40%' }}>Sản phẩm</th>
+              <th style={{ ...adminStyles.th, textAlign: 'center' }}>Giá</th>
+              <th style={{ ...adminStyles.th, textAlign: 'center' }}>Số lượng</th>
+              <th style={{ ...adminStyles.th, textAlign: 'center' }}>Trạng thái</th>
+              <th style={{ ...adminStyles.th, textAlign: 'center' }}>Hành động</th>
             </tr>
           </thead>
           <tbody>
             {Array.isArray(items) && items.map(p => (
               <tr key={p._id} style={{ backgroundColor: '#2d3748' }}>
-                <td 
-                  style={{...adminStyles.td, cursor: 'pointer'}} 
+                <td
+                  style={{ ...adminStyles.td, cursor: 'pointer' }}
                   onClick={() => viewHistory(p)}
-                  title={`View history for ${p.name}`}
+                  title={`Xem lịch sử cho ${p.name}`}
                 >
                   <div style={adminStyles.productNameCell}>
                     {p.imageUrls && p.imageUrls[0] && <img src={p.imageUrls[0]} alt={p.name} style={adminStyles.productImage} />}
                     <span>{p.name}</span>
                   </div>
                 </td>
-                <td style={{...adminStyles.td, textAlign: 'center', whiteSpace: 'nowrap'}}>{(p.priceCents).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
-                <td style={{...adminStyles.td, textAlign: 'center'}}>{p.stock}</td>
-                <td style={{...adminStyles.td, textAlign: 'center'}}>
+                <td style={{ ...adminStyles.td, textAlign: 'center', whiteSpace: 'nowrap' }}>{(p.priceCents).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
+                <td style={{ ...adminStyles.td, textAlign: 'center' }}>{p.stock}</td>
+                <td style={{ ...adminStyles.td, textAlign: 'center' }}>
                   <span style={p.active ? adminStyles.statusActive : adminStyles.statusInactive}>
-                    {p.active ? 'Active' : 'Inactive'}
+                    {p.active ? 'Hiện' : 'Ẩn'}
                   </span>
                 </td>
-                <td style={{...adminStyles.td, ...adminStyles.actionsCell}}>
-                  <div style={{...adminStyles.buttonGroup, gap: '0.5rem', marginTop: 0, justifyContent: 'flex-end'}}>
-                    <button onClick={() => toggleActive(p)} style={{ ...adminStyles.button, ...adminStyles.secondaryButton, padding: '0.5rem 1rem' }}>{p.active ? 'Deactivate' : 'Activate'}</button>
-                    <button onClick={() => editProduct(p)} style={{ ...adminStyles.button, ...adminStyles.editButton, padding: '0.5rem 1rem', marginRight: '0.5rem' }}>Edit</button>
-                    <button onClick={() => remove(p)} style={{ ...adminStyles.button, ...adminStyles.dangerButton, padding: ' 0.5rem 1rem' }}>Delete</button>
+                <td style={{ ...adminStyles.td, ...adminStyles.actionsCell }}>
+                  <div style={{ ...adminStyles.buttonGroup, gap: '0.5rem', marginTop: 0, justifyContent: 'flex-end' }}>
+                    <button onClick={() => toggleActive(p)} style={{ ...adminStyles.button, ...adminStyles.secondaryButton, padding: '0.5rem 1rem' }}>{p.active ? 'Ẩn' : 'Hiện'}</button>
+                    <button onClick={() => editProduct(p)} style={{ ...adminStyles.button, ...adminStyles.editButton, padding: '0.5rem 1rem', marginRight: '0.5rem' }}>Sửa</button>
+                    <button onClick={() => remove(p)} style={{ ...adminStyles.button, ...adminStyles.dangerButton, padding: ' 0.5rem 1rem' }}>Xóa</button>
                   </div>
                 </td>
               </tr>

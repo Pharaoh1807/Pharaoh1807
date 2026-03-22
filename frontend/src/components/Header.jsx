@@ -253,9 +253,9 @@ export default function Header() {
                   )}
                 </Link>
                 <Link to="/admin/products" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>
-                  Dashboard
+                  Báo cáo
                 </Link>
-                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Log Out</button>
+                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Đăng xuất</button>
               </>
             ) : userInfo ? (
               <>
@@ -330,12 +330,12 @@ export default function Header() {
                     </div>
                   )}
                 </div>
-                <Link to="/user/dashboard" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>Account</Link>
-                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Log Out</button>
+                <Link to="/user/dashboard" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>Tài khoản</Link>
+                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Đăng xuất</button>
               </>
             ) : (
               <Link to="/user/login" style={{ color: '#cbd5e0', textDecoration: 'none', fontWeight: 'bold' }}>
-                Log In
+                Đăng nhập
               </Link>
             )}
           </div>
