@@ -94,18 +94,18 @@ export default function UserDashboard() {
     container: { ...pagesStyles.container, alignItems: 'flex-start' },
     header: { ...pagesStyles.header, marginBottom: '2rem' },
     orderCard: {
-      backgroundColor: '#2d3748',
+      backgroundColor: 'var(--header-bg)',
       padding: '1.5rem',
       borderRadius: '8px',
       marginBottom: '1rem',
-      border: '1px solid #4a5568',
+      border: '1px solid var(--border-color)',
       width: '100%',
     },
     orderHeader: {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
-      borderBottom: '1px solid #4a5568',
+      borderBottom: '1px solid var(--border-color)',
       paddingBottom: '1rem',
       marginBottom: '1rem',
       flexWrap: 'wrap',
@@ -114,7 +114,8 @@ export default function UserDashboard() {
     orderProduct: { display: 'flex', alignItems: 'center', gap: '1rem' },
     productImage: { width: '80px', height: '80px', objectFit: 'cover', borderRadius: '4px' },
     totalCount: {
-      backgroundColor: '#4a5568',
+      backgroundColor: 'var(--header-bg)',
+      border: '1px solid var(--border-color)',
       padding: '1rem',
       borderRadius: '8px',
       marginBottom: '2rem',
@@ -163,10 +164,10 @@ export default function UserDashboard() {
         flexWrap: 'wrap',
         gap: '1rem',
         marginBottom: '1.5rem',
-        backgroundColor: '#2d3748',
+        backgroundColor: 'var(--header-bg)',
         padding: '1rem',
         borderRadius: '8px',
-        border: '1px solid #4a5568',
+        border: '1px solid var(--border-color)',
         width: '100%',
         alignItems: 'center'
       }}>
@@ -180,9 +181,9 @@ export default function UserDashboard() {
               width: '100%',
               padding: '0.75rem',
               borderRadius: '6px',
-              border: '1px solid #4a5568',
-              backgroundColor: '#1a202c',
-              color: '#fff',
+              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--bg-color)',
+              color: 'var(--text-main)',
               outline: 'none'
             }}
           />
@@ -196,9 +197,9 @@ export default function UserDashboard() {
               width: '100%',
               padding: '0.75rem',
               borderRadius: '6px',
-              border: '1px solid #4a5568',
-              backgroundColor: '#1a202c',
-              color: '#fff',
+              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--bg-color)',
+              color: 'var(--text-main)',
               outline: 'none',
               cursor: 'pointer'
             }}
@@ -218,9 +219,9 @@ export default function UserDashboard() {
               width: '100%',
               padding: '0.75rem',
               borderRadius: '6px',
-              border: '1px solid #4a5568',
-              backgroundColor: '#1a202c',
-              color: '#fff',
+              border: '1px solid var(--border-color)',
+              backgroundColor: 'var(--bg-color)',
+              color: 'var(--text-main)',
               outline: 'none',
               cursor: 'pointer'
             }}
@@ -233,7 +234,7 @@ export default function UserDashboard() {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '1rem' }}>
         <h3 style={{ margin: 0 }}>Lịch sử mua hàng</h3>
-        {orders.length === 0 && loading && <span style={{ fontSize: '0.9rem', color: '#a0aec0' }}>Đang tải...</span>}
+        {orders.length === 0 && loading && <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Đang tải...</span>}
       </div>
       {filteredOrders.length > 0 ? (
         <div style={{ width: '100%' }}>
@@ -254,10 +255,10 @@ export default function UserDashboard() {
 
                 <img src={order.product?.imageUrls?.[0] || 'https://placehold.co/80x80'} alt={order.product?.name} style={styles.productImage} />
                 <div>
-                  <h4><Link to={`/products/${order.product?._id}`} style={{ color: '#fff', textDecoration: 'none' }}>{order.product?.name || 'Sản phẩm không còn tồn tại'}</Link></h4>
+                  <h4><Link to={`/products/${order.product?._id}`} style={{ color: 'var(--title-color)', textDecoration: 'none' }}>{order.product?.name || 'Sản phẩm không còn tồn tại'}</Link></h4>
                   <p style={{ margin: '0.25rem 0' }}>Số lượng: {order.quantity}</p>
                   <p style={{ margin: '0.25rem 0' }}>Tổng tiền: {(order.amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</p>
-                  <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', color: '#a0aec0' }}>Ngày đặt: {new Date(order.createdAt).toLocaleString('vi-VN')}</p>
+                  <p style={{ margin: '0.25rem 0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>Ngày đặt: {new Date(order.createdAt).toLocaleString('vi-VN')}</p>
                 </div>
               </div>
             </div>

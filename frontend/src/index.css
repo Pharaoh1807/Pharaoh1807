@@ -9,6 +9,7 @@
   -moz-osx-font-smoothing: grayscale;
 
   /* Light Theme Variables (Default) */
+  --page-bg: linear-gradient(135deg, #e8f5e9 0%, #fce4ec 100%);
   --bg-color: #ffffff;
   --text-main: #2d3748;
   --border-color: #e2e8f0;
@@ -25,6 +26,7 @@
 
 [data-theme='dark'] {
   /* Dark Theme Variables */
+  --page-bg: #1a202c;
   --bg-color: #1a202c;
   --text-main: #e2e8f0;
   --border-color: #4a5568;
@@ -41,11 +43,10 @@
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background-color: var(--bg-color);
+  background: var(--page-bg);
+  background-attachment: fixed;
   color: var(--text-main);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -63,6 +64,10 @@ a {
 
 a:hover {
   filter: brightness(0.8);
+}
+
+.logo-link:hover {
+  filter: none !important;
 }
 
 button {

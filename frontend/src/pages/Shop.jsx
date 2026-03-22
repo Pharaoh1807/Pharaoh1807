@@ -116,6 +116,7 @@ export default function Shop() {
                 borderRadius: '50%',
                 backgroundColor: currentBannerIndex === index ? '#ffffff' : 'rgba(255, 255, 255, 0.4)',
                 border: 'none',
+                padding: 0,
                 cursor: 'pointer',
                 transition: 'background-color 0.3s'
               }}
@@ -139,9 +140,9 @@ export default function Shop() {
             maxWidth: '400px',
             padding: '0.75rem',
             borderRadius: '6px',
-            border: '1px solid #4a5568',
-            backgroundColor: '#1a202c',
-            color: '#fff',
+            border: '1px solid var(--border-color)',
+            backgroundColor: 'var(--header-bg)',
+            color: 'var(--text-main)',
             outline: 'none',
             fontSize: '1rem'
           }}
@@ -210,7 +211,7 @@ export default function Shop() {
                       height: '40px',
                       objectFit: 'cover',
                       borderRadius: '8px',
-                      border: '1px solid #4a5568'
+                      border: '1px solid var(--border-color)'
                     }}
                   />
                 ))}

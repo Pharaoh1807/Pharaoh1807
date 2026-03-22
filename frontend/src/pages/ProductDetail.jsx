@@ -270,8 +270,8 @@ export default function ProductDetail() {
       margin: '1rem 0 1.5rem 0',
     },
     button: {
-      backgroundColor: '#4a5568',
-      color: 'white',
+      backgroundColor: 'var(--btn-bg)',
+      color: 'var(--btn-text)',
       border: 'none',
       borderRadius: '50%',
       width: '40px',
@@ -283,7 +283,7 @@ export default function ProductDetail() {
       justifyContent: 'center',
     },
     disabledButton: {
-      backgroundColor: '#718096',
+      backgroundColor: 'var(--border-color)',
       cursor: 'not-allowed',
       opacity: 0.6,
     },
@@ -292,10 +292,10 @@ export default function ProductDetail() {
       textAlign: 'center',
       fontSize: '1.2rem',
       padding: '0.5rem',
-      border: '1px solid #4a5568',
+      border: '1px solid var(--border-color)',
       borderRadius: '6px',
-      backgroundColor: '#2d3748',
-      color: '#e2e8f0',
+      backgroundColor: 'var(--bg-color)',
+      color: 'var(--text-main)',
       MozAppearance: 'textfield', // For Firefox
       appearance: 'textfield', // For Chrome, Safari, Edge
     }
@@ -412,7 +412,7 @@ export default function ProductDetail() {
                     +
                   </button>
                 </div>
-                <p style={{ textAlign: 'center', color: '#a0aec0', fontSize: '0.9rem' }}>Có sẵn: {product.stock} sản phẩm</p>
+                <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.9rem' }}>Có sẵn: {product.stock} sản phẩm</p>
               </div>
 
               <strong style={{ ...pagesStyles.productPrice, fontSize: '1.8rem', display: 'block', marginBottom: '1rem', color: '#48bb78', textAlign: 'center' }}>
@@ -429,7 +429,7 @@ export default function ProductDetail() {
                   ...(busy ? pagesStyles.buyButtonDisabled : {})
                 }}
               >
-                {busy ? 'Processing...' : 'Buy Now'}
+                {busy ? 'Đang xử lí...' : 'Mua Ngay'}
               </button>
             </>
           ) : (
@@ -448,9 +448,9 @@ export default function ProductDetail() {
 
       {/* Long Description Section */}
       {product.longDescription && (
-        <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid #4a5568' }}>
+        <div style={{ marginTop: '4rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)' }}>
           <h3 style={pagesStyles.header}>Mô tả chi tiết</h3>
-          <div style={{ fontSize: '1.1rem', lineHeight: '1.7', whiteSpace: 'pre-wrap', color: '#cbd5e0' }}>
+          <div style={{ fontSize: '1.1rem', lineHeight: '1.7', whiteSpace: 'pre-wrap', color: 'var(--text-muted)' }}>
             {product.longDescription}
           </div>
         </div>
@@ -458,7 +458,7 @@ export default function ProductDetail() {
 
       {/* Related Products Section */}
       {relatedProducts.length > 0 && (
-        <div style={{ marginTop: '5rem', paddingTop: '2rem', borderTop: '1px solid #4a5568' }}>
+        <div style={{ marginTop: '5rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)' }}>
           <h3 style={pagesStyles.header}>Những sản phẩm liên quan</h3>
           <div style={pagesStyles.grid}>
             {relatedProducts.map(p => (

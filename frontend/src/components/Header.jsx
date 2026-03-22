@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { api } from '../api';
+import logoImg from "../assets/Logo.jpg"
 
 import { usePendingTransactionsCount } from '../hooks/usePendingTransactionsCount'; // Import the new hook
 import { useTheme } from '../context/ThemeContext';
@@ -229,28 +230,22 @@ export default function Header() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '1.5rem 0',
+        padding: '4px 0',
         maxWidth: '1200px',
         margin: '0 auto'
       }}>
 
         {/* Thay link ảnh dưới đây bằng link logo thật của bạn */}
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+        <Link to="/" className="logo-link" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
           <img
-            src="https://cdn.openart.ai/openart-ai/production/2026-03/create-image/VPxTg27RaO35zQg0C8ri/image_1774109847637_b6a85db5_1774109847669_b1f35dc7.jpg"
+            src={logoImg}
             alt="Shop Logo"
-            style={{ height: '40px', objectFit: 'contain' }}
+            style={{ height: '80px', objectFit: 'contain', borderRadius: '12px' }}
           />
         </Link>
         <nav>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-            <button
-              onClick={toggleTheme}
-              style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '0.2rem' }}
-              title="Toggle Theme"
-            >
-              {theme === 'light' ? '🌙' : '☀️'}
-            </button>
+
             {isAdmin ? (
               <>
                 <Link to="/admin/transactions" style={{ color: 'var(--nav-link)', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
@@ -339,14 +334,23 @@ export default function Header() {
                     </div>
                   )}
                 </div>
-                <Link to="/user/dashboard" style={{ color: 'var(--nav-link)', textDecoration: 'none', fontWeight: 'bold' }}>Account</Link>
-                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Log Out</button>
+                <Link to="/user/dashboard" style={{ color: 'var(--nav-link)', textDecoration: 'none', fontWeight: 'bold' }}>Tài khoản</Link>
+                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Đăng xuất</button>
+
               </>
             ) : (
               <Link to="/user/login" style={{ color: 'var(--nav-link)', textDecoration: 'none', fontWeight: 'bold' }}>
-                Log In
+                Đăng nhập
               </Link>
             )}
+
+            <button
+              onClick={toggleTheme}
+              style={{ background: 'none', border: 'none', fontSize: '1.2rem', cursor: 'pointer', padding: '0.2rem' }}
+              title="Toggle Theme"
+            >
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
           </div>
         </nav>
       </div>

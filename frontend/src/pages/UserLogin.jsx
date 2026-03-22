@@ -44,11 +44,11 @@ export default function UserLogin() {
     formWrapper: {
       width: '100%',
       maxWidth: '420px',
-      backgroundColor: '#2d3748',
+      backgroundColor: 'var(--header-bg)',
       padding: '2.5rem',
       borderRadius: '10px',
       boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.1)',
-      border: '1px solid #4a5568',
+      border: '1px solid var(--border-color)',
     },
     header: {
       ...pagesStyles.header,
@@ -57,11 +57,11 @@ export default function UserLogin() {
       borderBottom: 'none',
     },
     inputGroup: { marginBottom: '1.5rem' },
-    input: {width: '80%', padding: '0.4rem', borderRadius: '4px', border: '1px solid #4a5568', backgroundColor: '#FFFFFF', color: '#19202D' },
+    input: {width: '80%', padding: '0.4rem', borderRadius: '4px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)', color: 'var(--text-main)' },
     label: {
       display: 'block',
       marginBottom: '0.5rem',
-      color: '#a0aec0',
+      color: 'var(--text-muted)',
       fontWeight: '600',
       fontSize: '0.9rem',
     },
@@ -72,7 +72,7 @@ export default function UserLogin() {
       fontSize: '1.1rem',
       fontWeight: 'bold',
     },
-    link: { color: '#63b3ed', textDecoration: 'none', fontWeight: '500' },
+    link: { color: 'var(--link-color)', textDecoration: 'none', fontWeight: '500' },
     textCenter: { textAlign: 'center' },
     marginTop: { marginTop: '1.5rem' },
     errorMessage: {

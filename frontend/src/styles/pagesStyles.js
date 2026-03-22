@@ -1,25 +1,29 @@
 const pagesStyles = {
   container: {
     fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
-    color: '#e2e8f0',
+    color: 'var(--text-main)',
     maxWidth: '1200px',
     margin: '0 auto',
+    
   },
   header: {
     fontSize: '2rem',
     marginBottom: '1.5rem',
-    borderBottom: '2px solid #4a5568',
+    borderBottom: '2px solid var(--border-color)',
     paddingBottom: '0.5rem',
-    color: '#ffffff',
+    color: 'var(--title-color)',
   },
   grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
     gap: '1.5rem',
   },
   productCard: {
-    backgroundColor: '#2d3748',
+    width: '260px',
+    backgroundColor: 'var(--header-bg)',
     borderRadius: '8px',
+    border: '1px solid var(--border-color)',
     padding: '1rem',
     display: 'flex',
     flexDirection: 'column',
@@ -35,11 +39,11 @@ const pagesStyles = {
   productName: {
     fontSize: '1.2rem',
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: 'var(--title-color)',
     margin: '0 0 0.5rem 0',
   },
   productDescription: {
-    color: '#a0aec0',
+    color: 'var(--text-muted)',
     flexGrow: 1,
     marginBottom: '1rem',
     // Add multi-line ellipsis for long descriptions
@@ -67,7 +71,8 @@ const pagesStyles = {
     width: '100%',
   },
   buyButtonDisabled: {
-    backgroundColor: '#4a5568',
+    backgroundColor: 'var(--border-color)',
+    color: 'var(--text-muted)',
     cursor: 'not-allowed',
   }}
 

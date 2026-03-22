@@ -1,9 +1,8 @@
 export default function Success() {
-    return (
-      <div>
-        <h2>Payment successful</h2>
-        <p>Thank you! Your order is being processed.</p>
-      </div>
-    );
-  }
-  
+  return (
+    <div>
+      <h2>Thanh toán thành công</h2>
+      <p>Cảm ơn! Đơn hàng của bạn đang được xử lý.</p>
+    </div>
+  );
+}
