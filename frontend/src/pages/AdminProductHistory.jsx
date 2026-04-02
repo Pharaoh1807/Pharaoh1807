@@ -123,19 +123,19 @@ export default function AdminProductHistory() {
 
   const renderPerformedBy = (performer) => {
     if (performer?.user) {
-      return <>{performer.user.name || 'N/A'}<br /><span style={{ fontSize: '0.8em', color: '#a0aec0' }}>({performer.user.email || 'N/A'})</span></>;
+      return <>{performer.user.name || 'N/A'}<br /><span style={{ fontSize: '0.8em', color: 'var(--text-muted)' }}>({performer.user.email || 'N/A'})</span></>;
     }
     if (performer?.adminEmail) {
-      return <>Admin<br /><span style={{ fontSize: '0.8em', color: '#a0aec0' }}>({performer.adminEmail})</span></>;
+      return <>Admin<br /><span style={{ fontSize: '0.8em', color: 'var(--text-muted)' }}>({performer.adminEmail})</span></>;
     }
     return 'Hệ thống';
   };
 
   const renderNotesOrId = (log) => {
     if (log.type === 'sale' && log.relatedTransaction?.transactionId) {
-      return <><strong style={{color: '#a0aec0'}}>ID:</strong> {log.relatedTransaction.transactionId}</>;
+      return <><strong style={{color: 'var(--text-muted)'}}>ID:</strong> {log.relatedTransaction.transactionId}</>;
     }
-    return log.notes || <span style={{color: '#718096'}}>N/A</span>;
+    return log.notes || <span style={{color: 'var(--text-muted)'}}>N/A</span>;
   };
 
   if (loading) {
@@ -159,10 +159,10 @@ export default function AdminProductHistory() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h2 style={{...adminStyles.header, marginBottom: '0.5rem'}}>Lịch sử tồn kho</h2>
-          <h3 style={{margin: 0, color: '#a0aec0', fontWeight: 'normal'}}>
-            Sản phẩm: <span style={{color: '#e2e8f0', fontWeight: 'bold'}}>{product?.name}</span>
+          <h3 style={{margin: 0, color: 'var(--text-muted)', fontWeight: 'normal'}}>
+            Sản phẩm: <span style={{color: 'var(--text-main)', fontWeight: 'bold'}}>{product?.name}</span>
           </h3>
-          <p style={{margin: '0.5rem 0 0', color: '#a0aec0'}}>
+          <p style={{margin: '0.5rem 0 0', color: 'var(--text-muted)'}}>
             Tồn kho hiện tại: <span style={{color: '#48bb78', fontWeight: 'bold'}}>{product?.stock}</span>
           </p>
         </div>
@@ -198,8 +198,8 @@ export default function AdminProductHistory() {
         </div>
       )}
 
-      <div style={{ backgroundColor: '#2d3748', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem', border: '1px solid #4a5568' }}>
-        <h4 style={{marginTop: 0, marginBottom: '1rem', color: '#cbd5e0'}}>Lọc lịch sử</h4>
+      <div style={{ backgroundColor: 'var(--header-bg)', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem', border: '1px solid var(--border-color)' }}>
+        <h4 style={{marginTop: 0, marginBottom: '1rem', color: 'var(--text-muted)'}}>Lọc lịch sử</h4>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <input type="number" name="year" placeholder="Năm (VD: 2023)" value={filters.year} onChange={handleFilterChange} style={{...adminStyles.input, width: '120px'}} />
           <input type="number" name="month" placeholder="Tháng (1-12)" value={filters.month} onChange={handleFilterChange} style={{...adminStyles.input, width: '120px'}} />

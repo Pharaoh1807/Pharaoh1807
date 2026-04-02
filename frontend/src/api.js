@@ -266,6 +266,21 @@ export const api = {
     return res.json();
   },
 
+  async uploadImage(token, file) {
+    const formData = new FormData();
+    formData.append('image', file);
+    
+    const res = await fetch(`${API_URL}/api/upload`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData // Let browser set Content-Type header
+    });
+    if (!res.ok) throw new Error('Image upload failed');
+    return res.json();
+  },
+
   async verifyAdminToken(token) {
     const res = await fetch(`${API_URL}/api/admin/verify-token`, {
       method: 'POST',

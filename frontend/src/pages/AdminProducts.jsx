@@ -87,7 +87,7 @@ export default function AdminProducts() {
   };
 
   const totalProducts = items.length;
-  const totalValue = Array.isArray(items) && items.reduce((sum, item) => sum + (item.active ? item.priceCents : 0), 0);
+  const totalValue = Array.isArray(items) && items.reduce((sum, item) => sum + (item.active ? item.priceCents : 0) * (item.active ? item.stock : 0), 0);
   const activeProducts = Array.isArray(items) && items.filter(item => item.active).length;
 
   return (
@@ -101,20 +101,20 @@ export default function AdminProducts() {
 
       {/* Summary Section */}
       <div style={{
-        backgroundColor: '#2d3748',
+        backgroundColor: 'var(--header-bg)',
         padding: '1rem 1.5rem',
         borderRadius: '8px',
         marginBottom: '1.5rem',
-        border: '1px solid #4a5568',
+        border: '1px solid var(--border-color)',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
-          <span style={{ fontSize: '1.1rem', color: '#cbd5e0' }}>Tổng giá trị tồn kho:</span>
+          <span style={{ fontSize: '1.1rem', color: 'var(--text-muted)' }}>Tổng giá trị tồn kho:</span>
           <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#48bb78', whiteSpace: 'nowrap' }}>
             {totalValue ? totalValue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : '0 ₫'}
           </span>
         </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderTop: '1px solid #4a5568', marginTop: '0.5rem' }}>
-          <span style={{ fontSize: '1.1rem', color: '#cbd5e0' }}>Tổng doanh thu:</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderTop: '1px solid var(--border-color)', marginTop: '0.5rem' }}>
+          <span style={{ fontSize: '1.1rem', color: 'var(--text-muted)' }}>Tổng doanh thu:</span>
           <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#48bb78', whiteSpace: 'nowrap' }}>
             {totalRevenue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
           </span>
@@ -149,7 +149,7 @@ export default function AdminProducts() {
       </div>
 
       {loadingProducts ? (
-        <p style={{ color: '#e2e8f0', textAlign: 'center' }}>Đang tải sản phẩm...</p>
+        <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>Đang tải sản phẩm...</p>
       ) : (
         <table style={adminStyles.table}>
           <thead>
@@ -163,7 +163,7 @@ export default function AdminProducts() {
           </thead>
           <tbody>
             {Array.isArray(items) && items.map(p => (
-              <tr key={p._id} style={{ backgroundColor: '#2d3748' }}>
+              <tr key={p._id}>
                 <td
                   style={{ ...adminStyles.td, cursor: 'pointer' }}
                   onClick={() => viewHistory(p)}

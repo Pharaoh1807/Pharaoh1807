@@ -111,9 +111,9 @@ export default function AdminUsers() {
   const inputStyle = {
     width: '95%',
     padding: '8px',
-    backgroundColor: '#1A202C', // Darker background for input
-    color: '#e2e8f0',
-    border: '1px solid #4A5568',
+    backgroundColor: 'var(--bg-color)', // Darker background for input
+    color: 'var(--text-main)',
+    border: '1px solid var(--border-color)',
     borderRadius: '4px'
   };
 
@@ -159,7 +159,7 @@ export default function AdminUsers() {
               users.map(user => (
                 editingUserId === user._id ? (
                   // Edit Mode Row
-                  <tr key={user._id} style={{ backgroundColor: '#3c465a' }}>
+                  <tr key={user._id} style={{ backgroundColor: 'var(--btn-bg-hover)' }}>
                     <td style={adminStyles.td}>
                       <input type="text" name="name" value={editFormData.name} onChange={handleEditFormChange} style={inputStyle} />
                       <div style={{ marginTop: '8px' }}>
@@ -182,7 +182,7 @@ export default function AdminUsers() {
                   </tr>
                 ) : (
                   // Display Mode Row
-                  <tr key={user._id} style={{ backgroundColor: '#2d3748' }}>
+                  <tr key={user._id}>
                     <td style={adminStyles.td}>{user.name}</td>
                     <td style={adminStyles.td}>{user.email}</td>
                     <td style={{ ...adminStyles.td, textAlign: 'center' }}>{new Date(user.createdAt).toLocaleDateString('vi-VN')}</td>
@@ -219,7 +219,7 @@ export default function AdminUsers() {
             >
               &larr; Previous
             </button>
-            <span style={{ color: '#e2e8f0' }}>Page {pagination.currentPage} of {pagination.totalPages}</span>
+            <span style={{ color: 'var(--text-main)' }}>Page {pagination.currentPage} of {pagination.totalPages}</span>
             <button
               onClick={() => fetchUsers(pagination.currentPage + 1)}
               disabled={pagination.currentPage >= pagination.totalPages || loading}

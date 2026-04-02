@@ -12,8 +12,8 @@ const FilterButton = ({ filter, currentFilter, setFilter, count, children }) => 
   const isActive = filter === currentFilter;
   const style = {
     ...adminStyles.button,
-    backgroundColor: isActive ? '#4299e1' : '#4a5568',
-    color: isActive ? 'white' : '#e2e8f0',
+    backgroundColor: isActive ? '#4299e1' : 'var(--btn-bg)',
+    color: isActive ? 'white' : 'var(--btn-text)',
   };
   return (
     <button onClick={() => setFilter(filter)} style={style}>
@@ -41,7 +41,7 @@ const getStatusStyle = (status) => {
     case 'pending':
       return { ...baseStyle, backgroundColor: '#6c757d' };
     default:
-      return { ...baseStyle, backgroundColor: '#4a5568' };
+      return { ...baseStyle, backgroundColor: 'var(--text-muted)' };
   }
 };
 
@@ -170,7 +170,7 @@ const UserSalesReport = ({ transactions }) => {
       </div>
 
       {filteredUserGroups.length > 0 && (
-        <div style={{ display: 'flex', padding: '0.75rem 1.5rem', color: '#a0aec0', fontWeight: 'bold', borderBottom: '2px solid #4a5568' }}>
+        <div style={{ display: 'flex', padding: '0.75rem 1.5rem', color: 'var(--text-muted)', fontWeight: 'bold', borderBottom: '2px solid var(--border-color)' }}>
           <div style={{ flex: 3 }}>Người dùng</div>
           <div style={{ flex: 2, textAlign: 'right' }}>Tổng chi tiêu</div>
           <div style={{ flex: 2, textAlign: 'right' }}>Số sản phẩm</div>
@@ -183,11 +183,11 @@ const UserSalesReport = ({ transactions }) => {
           const userId = group.user._id || 'unknown';
           const isExpanded = expandedUsers[userId];
           return (
-            <div key={userId} style={{ backgroundColor: '#2d3748', borderRadius: '8px', margin: '0.5rem 0', overflow: 'hidden', border: '1px solid #374151' }}>
-              <div onClick={() => toggleUserExpansion(userId)} style={{ display: 'flex', alignItems: 'center', padding: '1rem 1.5rem', cursor: 'pointer', transition: 'background-color 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = '#3c465a'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+            <div key={userId} style={{ backgroundColor: 'var(--header-bg)', borderRadius: '8px', margin: '0.5rem 0', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+              <div onClick={() => toggleUserExpansion(userId)} style={{ display: 'flex', alignItems: 'center', padding: '1rem 1.5rem', cursor: 'pointer', transition: 'background-color 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--btn-bg-hover)'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
                 <div style={{ flex: 3 }}>
-                  <h4 style={{ margin: 0, color: '#fff' }}>{group.user.name}</h4>
-                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: '#a0aec0' }}>{group.user.email}</p>
+                  <h4 style={{ margin: 0, color: 'var(--title-color)' }}>{group.user.name}</h4>
+                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>{group.user.email}</p>
                 </div>
                 <div style={{ flex: 2, textAlign: 'right', fontWeight: 'bold', color: '#48bb78' }}>{group.totalSpent.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</div>
                 <div style={{ flex: 2, textAlign: 'right' }}>{group.totalItems}</div>
@@ -196,8 +196,8 @@ const UserSalesReport = ({ transactions }) => {
               {isExpanded && (
                 <div style={{ padding: '0 1.5rem 1.5rem' }}>
                   {/* Per-user filter section */}
-                  <div style={{ backgroundColor: '#374151', padding: '1rem', borderRadius: '6px', margin: '1rem 0' }}>
-                    <h5 style={{ marginTop: 0, marginBottom: '1rem', color: '#cbd5e0' }}>Lọc giao dịch của người dùng này</h5>
+                  <div style={{ backgroundColor: 'var(--bg-color)', padding: '1rem', borderRadius: '6px', margin: '1rem 0', border: '1px solid var(--border-color)' }}>
+                    <h5 style={{ marginTop: 0, marginBottom: '1rem', color: 'var(--text-main)' }}>Lọc giao dịch của người dùng này</h5>
                     <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
                       <input
                         type="text"
@@ -386,17 +386,17 @@ export default function AdminTransactionsPage() {
       </div>
 
 
-      <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid #4a5568', paddingBottom: '1.5rem' }}>
+      <div style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1.5rem' }}>
         <button
           onClick={() => setViewMode('management')}
-          style={{ ...adminStyles.button, marginRight: '1rem', backgroundColor: viewMode === 'management' ? '#4299e1' : '#4a5568' }}
+          style={{ ...adminStyles.button, marginRight: '1rem', backgroundColor: viewMode === 'management' ? '#4299e1' : 'var(--btn-bg)', color: viewMode === 'management' ? 'white' : 'var(--btn-text)' }}
         >
           Quản lý Giao dịch
         </button>
 
         <button
           onClick={() => setViewMode('byUser')}
-          style={{ ...adminStyles.button, backgroundColor: viewMode === 'byUser' ? '#4299e1' : '#4a5568' }}
+          style={{ ...adminStyles.button, backgroundColor: viewMode === 'byUser' ? '#4299e1' : 'var(--btn-bg)', color: viewMode === 'byUser' ? 'white' : 'var(--btn-text)' }}
         >
           Thống kê theo Người dùng
         </button>
@@ -441,7 +441,7 @@ export default function AdminTransactionsPage() {
                       <td style={adminStyles.td}>{new Date(transaction.createdAt).toLocaleString('vi-VN')}</td>
                       <td style={adminStyles.td}>
                         {transaction.user?.name || 'N/A'}<br />
-                        <span style={{ fontSize: '0.8em', color: '#a0aec0' }}>({transaction.user?.email || 'N/A'})</span>
+                        <span style={{ fontSize: '0.8em', color: 'var(--text-muted)' }}>({transaction.user?.email || 'N/A'})</span>
                       </td>
                       <td style={adminStyles.td}>{transaction.product?.name || 'N/A'}</td>
                       <td style={{ ...adminStyles.td, whiteSpace: 'nowrap' }}>

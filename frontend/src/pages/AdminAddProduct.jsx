@@ -12,10 +12,11 @@ export default function AdminAddProduct() {
     description: '',
     longDescription: '',
     priceCents: 10000,
-    imageUrls: [''],
     stock: 1,
     active: true
   });
+  const [imageFiles, setImageFiles] = useState([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -25,14 +26,21 @@ export default function AdminAddProduct() {
 
   const create = async (e) => {
     e.preventDefault();
+    setUploading(true);
     try {
-      const filteredImageUrls = form.imageUrls.filter(url => url && url.trim() !== '');
-      const payload = { ...form, priceCents: Number(form.priceCents), stock: Number(form.stock), imageUrls: filteredImageUrls };
+      const uploadedUrls = [];
+      for (const item of imageFiles) {
+        const res = await api.uploadImage(token, item.file);
+        uploadedUrls.push(res.url);
+      }
+      
+      const payload = { ...form, priceCents: Number(form.priceCents), stock: Number(form.stock), imageUrls: uploadedUrls };
       await api.adminCreate(token, payload);
       nav('/admin/products');
     } catch (err) {
       console.error("Failed to create product:", err);
       alert('Error creating product. Please check the console.');
+      setUploading(false);
     }
   };
 
@@ -45,22 +53,17 @@ export default function AdminAddProduct() {
     }));
   };
 
-  const handleImageUrlChange = (index, value) => {
-    const newImageUrls = [...form.imageUrls];
-    newImageUrls[index] = value;
-    setForm(prevForm => ({ ...prevForm, imageUrls: newImageUrls }));
-  };
-
-  const addImageUrlField = () => {
-    setForm(prevForm => ({
-      ...prevForm,
-      imageUrls: [...form.imageUrls, '']
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    const newImages = files.map(file => ({
+      file,
+      preview: URL.createObjectURL(file)
     }));
+    setImageFiles(prev => [...prev, ...newImages]);
   };
 
-  const removeImageUrlField = (index) => {
-    const newImageUrls = form.imageUrls.filter((_, i) => i !== index);
-    setForm(prevForm => ({ ...prevForm, imageUrls: newImageUrls.length > 0 ? newImageUrls : [''] }));
+  const removeImage = (index) => {
+    setImageFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -75,26 +78,30 @@ export default function AdminAddProduct() {
             <input id="name" name="name" placeholder="e.g. Whey Protein" value={form.name} onChange={handleFormChange} style={adminStyles.input} required />
           </div>
           <div style={adminStyles.inputGroup}>
-            <label style={adminStyles.label}>URL hình ảnh</label>
-            {form.imageUrls.map((url, index) => (
-              <div key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '0.75rem', gap: '0.5rem' }}>
-                <input
-                  type="url"
-                  placeholder={`URL hình ảnh ${index + 1}`}
-                  value={url}
-                  onChange={(e) => handleImageUrlChange(index, e.target.value)}
-                  style={{ ...adminStyles.input, flexGrow: 1 }}
-                />
-                {form.imageUrls.length > 1 && (
-                  <button type="button" onClick={() => removeImageUrlField(index)} style={{ ...adminStyles.button, ...adminStyles.dangerButton, padding: '0.5rem 0.75rem', fontSize: '0.9rem' }}>
-                    Xóa
-                  </button>
-                )}
+            <label style={adminStyles.label}>Ảnh sản phẩm (Tải lên từ máy tính)</label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              multiple 
+              onChange={handleImageChange} 
+            />
+            {imageFiles.length > 0 && (
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+                {imageFiles.map((item, index) => (
+                  <div key={index} style={{ position: 'relative', width: '100px', height: '100px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                    <img src={item.preview} alt={`preview ${index}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <button 
+                      type="button" 
+                      onClick={() => removeImage(index)} 
+                      style={{ position: 'absolute', top: '5px', right: '5px', background: 'rgba(255,0,0,0.7)', color: 'white', border: 'none', borderRadius: '50%', width: '24px', height: '24px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                      title="Xóa ảnh"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
               </div>
-            ))}
-            <button type="button" onClick={addImageUrlField} style={{ ...adminStyles.button, ...adminStyles.secondaryButton, marginTop: '0.5rem' }}>
-              Thêm URL hình ảnh
-            </button>
+            )}
           </div>
           <div style={adminStyles.inputGroup}>
             <label htmlFor="description" style={adminStyles.label}>Mô tả ngắn</label>
@@ -119,19 +126,7 @@ export default function AdminAddProduct() {
               required
             />
           </div>
-          <div style={adminStyles.inputGroup}>
-            <label htmlFor="stock" style={adminStyles.label}>Số lượng tồn kho</label>
-            <input
-              id="stock"
-              type="number"
-              name="stock"
-              placeholder="e.g. 100"
-              value={form.stock}
-              onChange={handleFormChange}
-              style={adminStyles.input}
-              required
-            />
-          </div>
+
           <div style={adminStyles.inputGroup}>
             <label style={adminStyles.checkboxLabel}>
               <input
@@ -146,8 +141,8 @@ export default function AdminAddProduct() {
             <button type="button" onClick={() => nav('/admin/products')} style={{ ...adminStyles.button, ...adminStyles.cancelButton }}>
               Hủy
             </button>
-            <button type="submit" style={{ ...adminStyles.button, ...adminStyles.primaryButton }}>
-              Lưu sản phẩm
+            <button type="submit" disabled={uploading} style={{ ...adminStyles.button, ...adminStyles.primaryButton, opacity: uploading ? 0.7 : 1 }}>
+              {uploading ? 'Đang lưu & tải ảnh...' : 'Lưu sản phẩm'}
             </button>
           </div>
         </form>

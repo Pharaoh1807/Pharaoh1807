@@ -42,7 +42,7 @@ const getOrderStatusInfo = (status) => {
     case 'pending':
       return { style: { ...baseStyle, backgroundColor: '#6c757d' }, text: 'Chờ thanh toán' };
     default:
-      return { style: { ...baseStyle, backgroundColor: '#4a5568' }, text: status };
+      return { style: { ...baseStyle, backgroundColor: 'var(--text-muted)' }, text: status };
   }
 };
 

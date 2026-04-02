@@ -14,6 +14,7 @@ app.use(cors({ origin: '*', credentials: true }));
 // Route imports
 const productsRoute = require('./routes/products');
 const adminRoute = require('./routes/admin');
+const uploadRoute = require('./routes/uploadRoutes');
 
 const { router: checkoutRoute, webhookHandler, stripe } = require('./routes/checkout');
 const vietqrRoute = require('./routes/vietqr');
@@ -26,6 +27,7 @@ const userRoute = require('./routes/users');
 
 app.use('/api/products', productsRoute);
 app.use('/api/admin', adminRoute);
+app.use('/api/upload', uploadRoute);
 app.use('/api/checkout', checkoutRoute);
 app.use('/api/vietqr', vietqrRoute);
 app.use('/api/transactions', transactionsRoute);
