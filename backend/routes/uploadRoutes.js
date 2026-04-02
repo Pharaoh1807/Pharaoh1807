@@ -24,20 +24,25 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage: storage });
 
-// @route   POST /api/upload
-// @desc    Upload an image to Cloudinary and return its URL
-// @access  Private/Admin
-router.post('/', adminAuth, upload.single('image'), (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No image uploaded.' });
+// Catch multer errors specifically
+router.post('/', adminAuth, (req, res, next) => {
+  if (!process.env.CLOUDINARY_CLOUD_NAME) {
+    return res.status(500).json({ error: 'Thiếu cấu hình Cloudinary trong file .env. Bạn cần khởi động lại Server Node.js sau khi điền .env nhé!' });
+  }
+  
+  upload.single('image')(req, res, function (err) {
+    if (err) {
+      console.error('Multer/Cloudinary Error:', err);
+      return res.status(500).json({ error: err.message || 'Lỗi khi upload ảnh lên Cloudinary.' });
     }
+    
+    if (!req.file) {
+      return res.status(400).json({ error: 'Không tìm thấy file ảnh để upload.' });
+    }
+    
     // Return the secure URL from Cloudinary
     res.json({ url: req.file.path });
-  } catch (error) {
-    console.error('Image upload failed:', error);
-    res.status(500).json({ error: 'Image upload failed.' });
-  }
+  });
 });
 
 module.exports = router;
