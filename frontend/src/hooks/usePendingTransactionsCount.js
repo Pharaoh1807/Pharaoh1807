@@ -16,9 +16,9 @@ export function usePendingTransactionsCount(token) {
 
     const fetchCount = async () => {
       try {
-        const transactions = await api.getAdminTransactions(token);
-        const pending = transactions.filter(t => t.status === 'processing').length;
-        setCount(pending);
+        const stats = await api.getAdminTransactionsStats(token);
+        const pendingCount = stats.counts?.processing || 0;
+        setCount(pendingCount);
       } catch (err) {
         console.error("Failed to fetch pending transactions count:", err);
         setCount(0); // Reset count on error

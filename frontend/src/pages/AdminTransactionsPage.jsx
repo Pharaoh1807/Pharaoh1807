@@ -6,6 +6,8 @@ import { toast } from 'react-hot-toast';
 import Pagination from '../components/Pagination';
 
 import * as XLSX from 'xlsx';
+
+
 const POLLING_INTERVAL = 15000; // Check for new transactions every 15 seconds
 
 // Helper component for filter buttons
@@ -53,7 +55,7 @@ const UserSalesReport = () => {
   const [filteredUserGroups, setFilteredUserGroups] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [loadingStats, setLoadingStats] = useState(true);
-  
+
   const token = localStorage.getItem('admin_token');
 
   // State for per-user filters
@@ -314,7 +316,9 @@ export default function AdminTransactionsPage() {
   const [transactionCounts, setTransactionCounts] = useState({ processing: 0, completed: 0, pending: 0, all: 0 });
   const [totalItemsSold, setTotalItemsSold] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState('management'); // 'management' or 'byUser'
+
   const itemsPerPage = 15;
 
   // Reset page when filter or viewMode changes
