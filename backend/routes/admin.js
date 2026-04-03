@@ -108,9 +108,10 @@ router.get('/products/:id', adminAuth, async (req, res) => {
 router.get('/products/:id/history', adminAuth, async (req, res) => {
   try {
     const productId = req.params.id;
-    const { year, month, day } = req.query;
+    const { year, month, day, page = 1, limit = 15 } = req.query;
 
     const query = { product: productId };
+    const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
 
     if (year) {
       const y = parseInt(year, 10);
@@ -141,10 +142,21 @@ router.get('/products/:id/history', adminAuth, async (req, res) => {
           path: 'performedBy.user',
           select: 'name email'
       })
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit, 10));
 
+    const totalLogs = await InventoryLog.countDocuments(query);
+    const totalPages = Math.ceil(totalLogs / parseInt(limit, 10)) || 1;
 
-    res.json(history);
+    res.json({
+      history,
+      pagination: {
+        currentPage: parseInt(page, 10),
+        totalPages,
+        totalLogs
+      }
+    });
   } catch (error) {
     console.error('Error fetching product inventory history:', error);
     res.status(500).json({ error: 'Server error while fetching product history.' });

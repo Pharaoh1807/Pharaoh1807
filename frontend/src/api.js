@@ -233,8 +233,10 @@ export const api = {
     return res.json();
   },
 
-  async getProductHistory (token, productId, activeFilters) {
+  async getProductHistory (token, productId, activeFilters, page = 1, limit = 15) {
     const url = new URL(`${API_URL}/api/admin/products/${productId}/history`);
+    url.searchParams.append('page', page);
+    url.searchParams.append('limit', limit);
 
     //them query params
     if (activeFilters) {

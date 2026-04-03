@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { adminStyles } from '../styles/adminStyles';
+import Pagination from '../components/Pagination';
 
 export default function AdminProductHistory() {
   const { id } = useParams();
@@ -12,6 +13,9 @@ export default function AdminProductHistory() {
   const [history, setHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const itemsPerPage = 15;
   const [filters, setFilters] = useState({ year: '', month: '', day: '' });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [adjustment, setAdjustment] = useState({
@@ -32,12 +36,13 @@ export default function AdminProductHistory() {
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        const [productData, historyData] = await Promise.all([
+        const [productData, historyRes] = await Promise.all([
           api.adminGetProduct(token, id),
-          api.getProductHistory(token, id, {})
+          api.getProductHistory(token, id, {}, currentPage, itemsPerPage)
         ]);
         setProduct(productData);
-        setHistory(historyData);
+        setHistory(historyRes.history || []);
+        setTotalPages(historyRes.pagination?.totalPages || 1);
         setError('');
       } catch (err) {
         console.error("Failed to fetch initial data:", err);
@@ -48,19 +53,19 @@ export default function AdminProductHistory() {
       }
     };
     fetchInitialData();
-  }, [id, token, logout]);
+  }, [id, token, logout, currentPage]);
 
-  const fetchHistory = useCallback(async (currentFilters) => {
+  const fetchHistory = useCallback(async (currentFilters, page = 1) => {
     setLoading(true);
     try {
-      // Lọc ra các giá trị rỗng để đảm bảo chỉ gửi các bộ lọc có giá trị.
-      // Nếu không có bộ lọc nào, nó sẽ tìm nạp tất cả lịch sử.
       const activeFilters = Object.fromEntries(
         Object.entries(currentFilters).filter(([_, value]) => value)
       );
 
-      const historyData = await api.getProductHistory(token, id, activeFilters);
-      setHistory(historyData);
+      const historyRes = await api.getProductHistory(token, id, activeFilters, page, itemsPerPage);
+      setHistory(historyRes.history || []);
+      setTotalPages(historyRes.pagination?.totalPages || 1);
+      setCurrentPage(page);
       setError('');
     } catch (err) {
       console.error("Failed to fetch product history:", err);
@@ -76,7 +81,7 @@ export default function AdminProductHistory() {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
-  const applyFilters = () => fetchHistory(filters);
+  const applyFilters = () => fetchHistory(filters, 1);
 
   const clearFilters = () => {
     const emptyFilters = { year: '', month: '', day: '' };
@@ -101,7 +106,7 @@ export default function AdminProductHistory() {
       setProduct(updatedProduct);
       setIsModalOpen(false);
       setAdjustment({ quantityChange: '', notes: '' });
-      fetchHistory(filters); // Refresh history list with current filters
+      fetchHistory(filters, currentPage); // Refresh history list with current filters and current page
       alert('Điều chỉnh kho thành công!');
     } catch (err) {
       console.error("Failed to adjust stock:", err);
@@ -243,6 +248,16 @@ export default function AdminProductHistory() {
           </tbody>
         </table>
       </div>
+      
+      {totalPages > 1 && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => fetchHistory(filters, page)}
+          />
+        </div>
+      )}
 
       
     </div>
