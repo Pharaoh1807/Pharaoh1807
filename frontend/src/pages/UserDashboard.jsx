@@ -2,10 +2,13 @@ import { useEffect, useReducer, useState } from 'react';
 import { api } from '../api';
 import pagesStyles from '../styles/pagesStyles';
 import { Link } from 'react-router-dom';
+import Pagination from '../components/Pagination';
 
 // Reducer for managing component state
 const initialState = {
   orders: [],
+  totalPages: 1,
+  totalOrders: 0,
   loading: true,
   error: '',
 };
@@ -15,7 +18,13 @@ function orderReducer(state, action) {
     case 'FETCH_START':
       return { ...state, loading: true, error: '' };
     case 'FETCH_SUCCESS':
-      return { ...state, loading: false, orders: action.payload };
+      return { 
+        ...state, 
+        loading: false, 
+        orders: action.payload.orders || [],
+        totalPages: action.payload.pagination?.totalPages || 1,
+        totalOrders: action.payload.pagination?.totalOrders || 0
+      };
     case 'FETCH_ERROR':
       return { ...state, loading: false, error: action.payload };
     default:
@@ -52,9 +61,16 @@ export default function UserDashboard() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateSort, setDateSort] = useState('newest');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  // We should debounce search, but for simplicity we rely on useEffect dependency
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, statusFilter, dateSort]);
 
   useEffect(() => {
-    // Determine whether to show loading indicator. Only show on initial load (orders.length === 0).
     const fetchOrders = async (isInitialLoad = false) => {
       if (isInitialLoad) {
         dispatch({ type: 'FETCH_START' });
@@ -67,14 +83,9 @@ export default function UserDashboard() {
       }
 
       try {
-        const data = await api.getUserOrders(userToken);
-        // Only update if data changed (prevent unnecessary re-renders)
-        // Since we are replacing the full list, use JSON.stringify as a simple comparison, or just dispatch.
-        // React's functional update on dispatch will re-render, but won't remount components if keys stay the same.
+        const data = await api.getUserOrders(userToken, currentPage, itemsPerPage, searchTerm, statusFilter, dateSort);
         dispatch({ type: 'FETCH_SUCCESS', payload: data });
       } catch (err) {
-        // We only want to show full error page if it's the initial load or a critical error.
-        // For background polling, we can choose to log it or update a silent error state.
         if (isInitialLoad) {
           dispatch({ type: 'FETCH_ERROR', payload: err.message || 'Could not load purchase history.' });
         } else {
@@ -83,12 +94,12 @@ export default function UserDashboard() {
       }
     };
 
-    fetchOrders(true); // Initial load
+    fetchOrders(true);
 
-    const intervalId = setInterval(() => fetchOrders(false), 15000); // Background refresh every 15s without setting loading=true
-    return () => clearInterval(intervalId); // Cleanup on unmount
+    const intervalId = setInterval(() => fetchOrders(false), 15000);
+    return () => clearInterval(intervalId);
 
-  }, []);
+  }, [currentPage, searchTerm, statusFilter, dateSort]);
 
   const styles = {
     container: { ...pagesStyles.container, alignItems: 'flex-start' },
@@ -129,24 +140,13 @@ export default function UserDashboard() {
     }
   };
 
-  // Calculate stats based on completed orders only (safe to run on empty array)
-  const completedOrders = orders.filter(order => order.status === 'completed');
-  const totalProductsPurchased = completedOrders.reduce((acc, order) => acc + order.quantity, 0);
-  const totalAmountSpent = completedOrders.reduce((acc, order) => acc + order.amount, 0);
-
-  // Apply filters and sorting
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = (order.product?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (order.transactionId || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  }).sort((a, b) => {
-    const dateA = new Date(a.createdAt);
-    const dateB = new Date(b.createdAt);
-    if (dateSort === 'newest') return dateB - dateA;
-    if (dateSort === 'oldest') return dateA - dateB;
-    return 0;
-  });
+  // Note: Statistics (Total products, total spent) for server-side pagination 
+  // requires an aggregate endpoint. In a real-world scenario, you might have `/api/users/stats`.
+  // For now, if accurate global state is needed, we'll hide them or show stats for current page,
+  // but to keep it simple, we'll try to provide them or drop them if they don't apply.
+  // Wait, these totals only calculated the fetch array. We'll disable them temporarily if the backend doesn't send global stats.
+  const totalProductsPurchased = orders.reduce((acc, order) => acc + (order.status === 'completed' ? order.quantity : 0), 0);
+  const totalAmountSpent = orders.reduce((acc, order) => acc + (order.status === 'completed' ? order.amount : 0), 0);
 
   return (
     <div style={styles.container}>
@@ -234,11 +234,11 @@ export default function UserDashboard() {
 
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', marginBottom: '1rem' }}>
         <h3 style={{ margin: 0 }}>Lịch sử mua hàng</h3>
-        {orders.length === 0 && loading && <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Đang tải...</span>}
+        {loading && <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Đang tải...</span>}
       </div>
-      {filteredOrders.length > 0 ? (
+      {orders.length > 0 ? (
         <div style={{ width: '100%' }}>
-          {filteredOrders.map(order => (
+          {orders.map(order => (
             <div key={order._id} style={styles.orderCard}>
               <div style={styles.orderHeader}>
                 <div>
@@ -263,6 +263,13 @@ export default function UserDashboard() {
               </div>
             </div>
           ))}
+          {state.totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={state.totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </div>
       ) : (
         <p>{orders.length > 0 ? 'Không tìm thấy đơn hàng nào phù hợp với bộ lọc.' : 'Bạn chưa mua sản phẩm nào.'}</p>

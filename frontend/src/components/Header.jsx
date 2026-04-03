@@ -122,6 +122,7 @@ export default function Header() {
   const handleNotificationLeave = () => {
     // Set a timeout to hide the dropdown, allowing the user to move the cursor into it
     setBell(false);
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
     notificationTimeoutRef.current = setTimeout(() => {
       setShowNotifications(false);
     }, 300); // 300ms delay
@@ -164,7 +165,8 @@ export default function Header() {
             newNotifications.push({
               id: newOrder._id,
               message: `Đơn hàng #${newOrder.transactionId.slice(-6)} đã được xác nhận!`,
-              link: '/user/dashboard'
+              link: '/user/dashboard',
+              isRead: false
             });
           }
         });
@@ -172,7 +174,10 @@ export default function Header() {
 
 
         if (newNotifications.length > 0) {
-          setNotifications(prev => [...newNotifications, ...prev]);
+          setNotifications(prev => {
+            const filteredPrev = prev.filter(p => !newNotifications.some(n => n.id === p.id));
+            return [...newNotifications, ...filteredPrev];
+          });
           setBell(true); // Show the bell notification badge
 
         }
@@ -249,7 +254,7 @@ export default function Header() {
             {isAdmin ? (
               <>
                 <Link to="/admin/transactions" style={{ color: 'var(--nav-link)', textDecoration: 'none', fontWeight: 'bold', display: 'flex', alignItems: 'center' }}>
-                  Order
+                  Đơn hàng
                   {!pendingCountLoading && pendingTransactionsCount > 0 && (
                     <span style={notificationBadgeStyle}>
                       {pendingTransactionsCount}
@@ -259,7 +264,7 @@ export default function Header() {
                 <Link to="/admin/products" style={{ color: 'var(--nav-link)', textDecoration: 'none', fontWeight: 'bold' }}>
                   Dashboard
                 </Link>
-                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Log Out</button>
+                <button onClick={handleLogout} style={{ background: 'none', border: 'none', color: '#f56565', cursor: 'pointer', fontWeight: 'bold' }}>Đăng xuất</button>
               </>
             ) : userInfo ? (
               <>
@@ -273,7 +278,7 @@ export default function Header() {
                 >
                   <div style={{ color: 'var(--nav-link)', cursor: 'pointer', position: 'relative', padding: '0.5rem' }}>
                     <span role="img" aria-label="notifications">🔔</span>
-                    {bell && notifications.length > 0 && (
+                    {bell && notifications.filter(n => !n.isRead).length > 0 && (
                       <span style={{
                         position: 'absolute',
                         top: '0',
@@ -289,7 +294,7 @@ export default function Header() {
                         alignItems: 'center',
                         justifyContent: 'center'
                       }}>
-                        {notifications.length}
+                        {notifications.filter(n => !n.isRead).length}
                       </span>
                     )}
                   </div>
@@ -321,8 +326,8 @@ export default function Header() {
                       <ul style={{ listStyle: 'none', margin: 0, padding: 0, maxHeight: '400px', overflowY: 'auto' }}>
                         {notifications.length > 0 ? (
                           notifications.map(notif => (
-                            <li key={notif.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
-                              <Link to={notif.link} onClick={() => setShowNotifications(false)} style={{ display: 'block', padding: '0.75rem 1rem', color: 'var(--text-main)', textDecoration: 'none', transition: 'background-color 0.2s' }}>
+                            <li key={notif.id} style={{ borderBottom: '1px solid var(--border-color)', opacity: notif.isRead ? 0.7 : 1 }}>
+                              <Link to={notif.link} onClick={() => setShowNotifications(false)} style={{ display: 'block', padding: '0.75rem 1rem', color: 'var(--text-main)', textDecoration: 'none', transition: 'background-color 0.2s', fontWeight: notif.isRead ? 'normal' : '600' }}>
                                 {notif.message}
                               </Link>
                             </li>

@@ -44,10 +44,49 @@ router.post("/verify-token", (req, res) => {
   
 })
 
-// Admin: list all products
+// Admin: get product stats
+router.get('/products/stats', adminAuth, async (req, res) => {
+  try {
+    const totalProducts = await Product.countDocuments();
+    const activeProducts = await Product.countDocuments({ active: true });
+    
+    // Aggregate to calculate total value
+    const result = await Product.aggregate([
+      { $match: { active: true } },
+      { $group: { _id: null, totalValue: { $sum: { $multiply: ["$priceCents", "$stock"] } } } }
+    ]);
+    
+    const totalValue = result[0]?.totalValue || 0;
+    
+    res.json({ totalProducts, activeProducts, totalValue });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error fetching product stats' });
+  }
+});
+
+// Admin: list all products with pagination
 router.get('/products', adminAuth, async (req, res) => {
-  const products = await Product.find({}).sort({ createdAt: -1 }).lean();
-  res.json(products);
+  try {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const skip = (page - 1) * limit;
+
+    const totalProducts = await Product.countDocuments();
+    const totalPages = Math.ceil(totalProducts / limit) || 1;
+
+    const products = await Product.find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+    
+    res.json({
+      products,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalProducts
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error fetching products' });
+  }
 });
 
 // Admin: create product
@@ -286,20 +325,139 @@ router.put('/users/:id', adminAuth, async (req, res) => {
   }
 });
 
-// @desc    Get all transactions (for Admin)
+// @desc    Get all transactions (for Admin) with pagination
 // @route   GET /api/admin/transactions
 // @access  Private/Admin
 router.get('/transactions', adminAuth, async (req, res) => {
   try {
-    const transactions = await Transaction.find({})
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 15;
+    const status = req.query.status || 'all';
+    const skip = (page - 1) * limit;
+
+    let query = {};
+    if (status !== 'all') {
+      query.status = status;
+    }
+
+    const totalTransactions = await Transaction.countDocuments(query);
+    const totalPages = Math.ceil(totalTransactions / limit) || 1;
+
+    const transactions = await Transaction.find(query)
       .populate('user', 'name email') // Populate user name and email
       .populate('product', 'name imageUrls priceCents') // Populate product name, imageUrls, price
-      .sort({ createdAt: -1 }); // Sort by newest first
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
 
-    res.json(transactions);
+    res.json({
+      transactions,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalTransactions
+      }
+    });
   } catch (error) {
     console.error('Error fetching all transactions for admin:', error);
     res.status(500).json({ error: 'Server error while fetching transactions.' });
+  }
+});
+
+// @desc    Get transaction statistics for dashboard
+// @route   GET /api/admin/transactions/stats
+// @access  Private/Admin
+router.get('/transactions/stats', adminAuth, async (req, res) => {
+  try {
+    const processing = await Transaction.countDocuments({ status: 'processing' });
+    const completed = await Transaction.countDocuments({ status: 'completed' });
+    const pending = await Transaction.countDocuments({ status: 'pending' });
+    const all = processing + completed + pending;
+    
+    const revenueResult = await Transaction.aggregate([
+      { $match: { status: 'completed' } },
+      { $group: { _id: null, totalItemsSold: { $sum: "$quantity" }, totalRevenue: { $sum: "$amount" } } }
+    ]);
+    
+    const totalItemsSold = revenueResult[0]?.totalItemsSold || 0;
+    const totalRevenue = revenueResult[0]?.totalRevenue || 0;
+    
+    res.json({
+      counts: { processing, completed, pending, all },
+      totalItemsSold,
+      totalRevenue
+    });
+  } catch (error) {
+    console.error('Error fetching transaction stats for admin:', error);
+    res.status(500).json({ error: 'Server error while fetching transaction stats.' });
+  }
+});
+
+// @desc    Get transactions grouped by user (for sales report) with pagination
+// @route   GET /api/admin/transactions/user-stats
+// @access  Private/Admin
+router.get('/transactions/user-stats', adminAuth, async (req, res) => {
+  try {
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const search = req.query.search || '';
+    const skip = (page - 1) * limit;
+
+    const matchUser = {};
+    if (search) {
+      matchUser.$or = [
+        { "userInfo.name": { $regex: search, $options: 'i' } },
+        { "userInfo.email": { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const pipeline = [
+      { $match: { status: 'completed' } },
+      { $group: { _id: "$user", totalSpent: { $sum: "$amount" }, totalItems: { $sum: "$quantity" }, transactions: { $push: "$$ROOT" } } },
+      { $lookup: { from: 'users', localField: '_id', foreignField: '_id', as: 'userInfo' } },
+      { $unwind: "$userInfo" }
+    ];
+
+    if (search) pipeline.push({ $match: matchUser });
+
+    // Count before paginating
+    const countPipeline = [...pipeline, { $count: "total" }];
+    const countResult = await Transaction.aggregate(countPipeline);
+    const totalUsers = countResult[0]?.total || 0;
+    const totalPages = Math.ceil(totalUsers / limit) || 1;
+
+    // Apply pagination and sort
+    pipeline.push({ $sort: { totalSpent: -1 } });
+    pipeline.push({ $skip: skip });
+    pipeline.push({ $limit: limit });
+    
+    // Map output safely
+    pipeline.push({
+      $project: {
+        _id: 0,
+        user: "$userInfo",
+        totalSpent: 1,
+        totalItems: 1,
+        transactions: 1 // Returning top-level transactions makes it easier for frontend inner pagination logic if they don't refetch
+      }
+    });
+
+    const userStats = await Transaction.aggregate(pipeline);
+    
+    // Populate the product details inside the grouped transactions
+    await Product.populate(userStats, { path: "transactions.product", select: "name imageUrls priceCents" });
+
+    res.json({
+      filteredUserGroups: userStats,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalUsers
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching user stats for admin:', error);
+    res.status(500).json({ error: 'Server error while fetching user stats.' });
   }
 });
 

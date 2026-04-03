@@ -21,8 +21,29 @@ router.get('/:id', async (req, res) => {
 // Public: list active products
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find({ active: true }).sort({ createdAt: -1 }).lean();
-    res.json(products || []);
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 12;
+    const search = req.query.search || '';
+    const skip = (page - 1) * limit;
+
+    const query = { active: true };
+    if (search) {
+      query.name = { $regex: search, $options: 'i' };
+    }
+
+    const totalProducts = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalProducts / limit) || 1;
+
+    const products = await Product.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+
+    res.json({
+      products: products || [],
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalProducts
+      }
+    });
   } catch (error) {
     console.error('Error fetching products:', error);
     res.status(500).json({ error: 'Internal Server Error' });

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { adminStyles } from '../styles/adminStyles';
 import { toast } from 'react-hot-toast';
+import Pagination from '../components/Pagination';
 
 import * as XLSX from 'xlsx';
 const POLLING_INTERVAL = 15000; // Check for new transactions every 15 seconds
@@ -46,43 +47,47 @@ const getStatusStyle = (status) => {
 };
 
 // Component for Sales Report View
-const UserSalesReport = ({ transactions }) => {
+const UserSalesReport = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedUsers, setExpandedUsers] = useState({});
+  const [filteredUserGroups, setFilteredUserGroups] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loadingStats, setLoadingStats] = useState(true);
+  
+  const token = localStorage.getItem('admin_token');
+
   // State for per-user filters
   const [filtersByUser, setFiltersByUser] = useState({});
 
-  const groupedTransactions = useMemo(() => {
-    // Only include completed transactions in the sales report
-    const completedTransactions = transactions.filter(t => t.status === 'completed');
+  const [pagesByUser, setPagesByUser] = useState({});
+  const itemsPerUserPage = 5;
 
-    const groups = completedTransactions.reduce((acc, t) => {
-      const userId = t.user?._id || 'unknown';
-      if (!acc[userId]) {
-        acc[userId] = {
-          user: t.user || { name: 'Người dùng đã bị xóa', email: 'N/A' },
-          transactions: [],
-          totalSpent: 0,
-          totalItems: 0,
-        };
-      }
-      acc[userId].transactions.push(t);
-      acc[userId].totalSpent += t.amount;
-      acc[userId].totalItems += t.quantity;
-      return acc;
-    }, {});
+  const handleUserPageChange = (userId, newPage) => {
+    setPagesByUser(prev => ({ ...prev, [userId]: newPage }));
+  };
 
-    return Object.values(groups).sort((a, b) => b.totalSpent - a.totalSpent);
-  }, [transactions]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
-  const filteredUserGroups = useMemo(() => {
-    if (!searchTerm) return groupedTransactions;
-    const lowerCaseSearch = searchTerm.toLowerCase();
-    return groupedTransactions.filter(group =>
-      group.user.name.toLowerCase().includes(lowerCaseSearch) ||
-      group.user.email.toLowerCase().includes(lowerCaseSearch)
-    );
-  }, [groupedTransactions, searchTerm]);
+  // Reset page when searching
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    setLoadingStats(true);
+    // Fetch stats natively mapped to skip and limit
+    api.getAdminTransactionsUserStats(token, currentPage, itemsPerPage, searchTerm)
+      .then(data => {
+        setFilteredUserGroups(data.filteredUserGroups || []);
+        setTotalPages(data.pagination?.totalPages || 1);
+        setLoadingStats(false);
+      })
+      .catch(err => {
+        console.error("Error loading user report stats", err);
+        setLoadingStats(false);
+      });
+  }, [token, currentPage, itemsPerPage, searchTerm]);
 
   const toggleUserExpansion = (userId) => {
     setExpandedUsers(prev => ({ ...prev, [userId]: !prev[userId] }));
@@ -97,6 +102,8 @@ const UserSalesReport = ({ transactions }) => {
         [filterName]: value,
       },
     }));
+    // Reset inner page to 1 when filter changes
+    setPagesByUser(prev => ({ ...prev, [userId]: 1 }));
   };
 
   // Apply filters to a user's transactions
@@ -178,82 +185,118 @@ const UserSalesReport = ({ transactions }) => {
         </div>
       )}
 
-      {filteredUserGroups.length > 0 ? (
-        filteredUserGroups.map(group => {
-          const userId = group.user._id || 'unknown';
-          const isExpanded = expandedUsers[userId];
-          return (
-            <div key={userId} style={{ backgroundColor: 'var(--header-bg)', borderRadius: '8px', margin: '0.5rem 0', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-              <div onClick={() => toggleUserExpansion(userId)} style={{ display: 'flex', alignItems: 'center', padding: '1rem 1.5rem', cursor: 'pointer', transition: 'background-color 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--btn-bg-hover)'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
-                <div style={{ flex: 3 }}>
-                  <h4 style={{ margin: 0, color: 'var(--title-color)' }}>{group.user.name}</h4>
-                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>{group.user.email}</p>
-                </div>
-                <div style={{ flex: 2, textAlign: 'right', fontWeight: 'bold', color: '#48bb78' }}>{group.totalSpent.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</div>
-                <div style={{ flex: 2, textAlign: 'right' }}>{group.totalItems}</div>
-                <div style={{ flex: 1, textAlign: 'right', fontSize: '1.5rem' }}>{isExpanded ? '▲' : '▼'}</div>
-              </div>
-              {isExpanded && (
-                <div style={{ padding: '0 1.5rem 1.5rem' }}>
-                  {/* Per-user filter section */}
-                  <div style={{ backgroundColor: 'var(--bg-color)', padding: '1rem', borderRadius: '6px', margin: '1rem 0', border: '1px solid var(--border-color)' }}>
-                    <h5 style={{ marginTop: 0, marginBottom: '1rem', color: 'var(--text-main)' }}>Lọc giao dịch của người dùng này</h5>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                      <input
-                        type="text"
-                        placeholder="Lọc theo tên sản phẩm"
-                        value={filtersByUser[userId]?.productName || ''}
-                        onChange={(e) => handleFilterChangeForUser(userId, 'productName', e.target.value)}
-                        style={{ ...adminStyles.input, width: '200px' }}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Năm"
-                        value={filtersByUser[userId]?.year || ''}
-                        onChange={(e) => handleFilterChangeForUser(userId, 'year', e.target.value)}
-                        style={{ ...adminStyles.input, width: '100px' }}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Tháng"
-                        value={filtersByUser[userId]?.month || ''}
-                        onChange={(e) => handleFilterChangeForUser(userId, 'month', e.target.value)}
-                        style={{ ...adminStyles.input, width: '100px' }}
-                      />
-                      <input
-                        type="number"
-                        placeholder="Ngày"
-                        value={filtersByUser[userId]?.day || ''}
-                        onChange={(e) => handleFilterChangeForUser(userId, 'day', e.target.value)}
-                        style={{ ...adminStyles.input, width: '100px' }}
-                      />
+      {loadingStats ? (
+        <p style={{ textAlign: 'center', padding: '2rem' }}>Đang tải báo cáo...</p>
+      ) : (() => {
+        return (
+          <>
+            {filteredUserGroups.length > 0 ? (
+              filteredUserGroups.map(group => {
+                const userId = group.user._id || 'unknown';
+                const isExpanded = expandedUsers[userId];
+                return (
+                  <div key={userId} style={{ backgroundColor: 'var(--header-bg)', borderRadius: '8px', margin: '0.5rem 0', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                    <div onClick={() => toggleUserExpansion(userId)} style={{ display: 'flex', alignItems: 'center', padding: '1rem 1.5rem', cursor: 'pointer', transition: 'background-color 0.2s' }} onMouseOver={e => e.currentTarget.style.backgroundColor = 'var(--btn-bg-hover)'} onMouseOut={e => e.currentTarget.style.backgroundColor = 'transparent'}>
+                      <div style={{ flex: 3 }}>
+                        <h4 style={{ margin: 0, color: 'var(--title-color)' }}>{group.user.name}</h4>
+                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.9rem', color: 'var(--text-muted)' }}>{group.user.email}</p>
+                      </div>
+                      <div style={{ flex: 2, textAlign: 'right', fontWeight: 'bold', color: '#48bb78' }}>{group.totalSpent.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</div>
+                      <div style={{ flex: 2, textAlign: 'right' }}>{group.totalItems}</div>
+                      <div style={{ flex: 1, textAlign: 'right', fontSize: '1.5rem' }}>{isExpanded ? '▲' : '▼'}</div>
                     </div>
+                    {isExpanded && (
+                      <div style={{ padding: '0 1.5rem 1.5rem' }}>
+                        {/* Per-user filter section */}
+                        <div style={{ backgroundColor: 'var(--bg-color)', padding: '1rem', borderRadius: '6px', margin: '1rem 0', border: '1px solid var(--border-color)' }}>
+                          <h5 style={{ marginTop: 0, marginBottom: '1rem', color: 'var(--text-main)' }}>Lọc giao dịch của người dùng này</h5>
+                          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <input
+                              type="text"
+                              placeholder="Lọc theo tên sản phẩm"
+                              value={filtersByUser[userId]?.productName || ''}
+                              onChange={(e) => handleFilterChangeForUser(userId, 'productName', e.target.value)}
+                              style={{ ...adminStyles.input, width: '200px' }}
+                            />
+                            <input
+                              type="number"
+                              placeholder="Năm"
+                              value={filtersByUser[userId]?.year || ''}
+                              onChange={(e) => handleFilterChangeForUser(userId, 'year', e.target.value)}
+                              style={{ ...adminStyles.input, width: '100px' }}
+                            />
+                            <input
+                              type="number"
+                              placeholder="Tháng"
+                              value={filtersByUser[userId]?.month || ''}
+                              onChange={(e) => handleFilterChangeForUser(userId, 'month', e.target.value)}
+                              style={{ ...adminStyles.input, width: '100px' }}
+                            />
+                            <input
+                              type="number"
+                              placeholder="Ngày"
+                              value={filtersByUser[userId]?.day || ''}
+                              onChange={(e) => handleFilterChangeForUser(userId, 'day', e.target.value)}
+                              style={{ ...adminStyles.input, width: '100px' }}
+                            />
+                          </div>
+                        </div>
+                        <table style={{ ...adminStyles.table, marginTop: '1rem', width: '100%', tableLayout: 'fixed' }}>
+                          <thead><tr><th style={{ ...adminStyles.th, textAlign: 'left' }}>Sản phẩm</th><th style={adminStyles.th}>Số lượng</th><th style={adminStyles.th}>Thành tiền</th><th style={adminStyles.th}>Ngày mua</th></tr></thead>
+                          <tbody>
+                            {(() => {
+                              const userTransactions = getFilteredUserTransactions(userId, group.transactions);
+                              if (userTransactions.length === 0) {
+                                return <tr><td colSpan="4" style={{ ...adminStyles.td, textAlign: 'center', padding: '1.5rem' }}>Không có giao dịch nào khớp với bộ lọc.</td></tr>;
+                              }
+
+                              const uCurrentPage = pagesByUser[userId] || 1;
+                              const uTotalPages = Math.ceil(userTransactions.length / itemsPerUserPage);
+                              const paginatedUserTx = userTransactions.slice((uCurrentPage - 1) * itemsPerUserPage, uCurrentPage * itemsPerUserPage);
+
+                              return (
+                                <>
+                                  {paginatedUserTx.map(t => (
+                                    <tr key={t._id}>
+                                      <td style={adminStyles.td}>{t.product?.name || 'Sản phẩm đã bị xóa'}</td>
+                                      <td style={{ ...adminStyles.td, textAlign: 'center' }}>{t.quantity}</td>
+                                      <td style={{ ...adminStyles.td, textAlign: 'right' }}>{t.amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
+                                      <td style={{ ...adminStyles.td, textAlign: 'center' }}>{new Date(t.createdAt).toLocaleDateString('vi-VN')}</td>
+                                    </tr>
+                                  ))}
+                                  {uTotalPages > 1 && (
+                                    <tr>
+                                      <td colSpan="4" style={{ padding: '1rem', borderTop: '1px solid var(--border-color)', backgroundColor: 'var(--bg-color)' }}>
+                                        <Pagination
+                                          currentPage={uCurrentPage}
+                                          totalPages={uTotalPages}
+                                          onPageChange={(page) => handleUserPageChange(userId, page)}
+                                        />
+                                      </td>
+                                    </tr>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                   </div>
-                  <table style={{ ...adminStyles.table, marginTop: '1rem', width: '100%', tableLayout: 'fixed' }}>
-                    <thead><tr><th style={{ ...adminStyles.th, textAlign: 'left' }}>Sản phẩm</th><th style={adminStyles.th}>Số lượng</th><th style={adminStyles.th}>Thành tiền</th><th style={adminStyles.th}>Ngày mua</th></tr></thead>
-                    <tbody>
-                      {(() => {
-                        const userTransactions = getFilteredUserTransactions(userId, group.transactions);
-                        if (userTransactions.length === 0) {
-                          return <tr><td colSpan="4" style={{ ...adminStyles.td, textAlign: 'center', padding: '1.5rem' }}>Không có giao dịch nào khớp với bộ lọc.</td></tr>;
-                        }
-                        return userTransactions.map(t => (
-                          <tr key={t._id}>
-                            <td style={adminStyles.td}>{t.product?.name || 'Sản phẩm đã bị xóa'}</td>
-                            <td style={{ ...adminStyles.td, textAlign: 'center' }}>{t.quantity}</td>
-                            <td style={{ ...adminStyles.td, textAlign: 'right' }}>{t.amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
-                            <td style={{ ...adminStyles.td, textAlign: 'center' }}>{new Date(t.createdAt).toLocaleDateString('vi-VN')}</td>
-                          </tr>
-                        ));
-                      })()}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          );
-        })
-      ) : (<p style={{ textAlign: 'center', padding: '2rem' }}>Không có dữ liệu mua hàng để hiển thị.</p>)}
+                );
+              })
+            ) : (<p style={{ textAlign: 'center', padding: '2rem' }}>Không có dữ liệu mua hàng để hiển thị.</p>)}
+
+            {totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            )}
+          </>
+        );
+      })()}
     </div>
   );
 };
@@ -267,7 +310,17 @@ export default function AdminTransactionsPage() {
   const [filter, setFilter] = useState('processing'); // Default to the most actionable tab
   const [confirmingId, setConfirmingId] = useState(null);
   const seenProcessingIds = useRef(new Set());
-  const [viewMode, setViewMode] = useState('management'); // 'management' or 'byUser'
+  const [totalPages, setTotalPages] = useState(1);
+  const [transactionCounts, setTransactionCounts] = useState({ processing: 0, completed: 0, pending: 0, all: 0 });
+  const [totalItemsSold, setTotalItemsSold] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+  
+  const itemsPerPage = 15;
+
+  // Reset page when filter or viewMode changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filter, viewMode]);
 
   const logout = useCallback(() => {
     localStorage.removeItem('admin_token');
@@ -276,9 +329,11 @@ export default function AdminTransactionsPage() {
 
   // Refactored data fetching logic into a useCallback to make it reusable
   const fetchAndProcessTransactions = useCallback(async (isInitialLoad = false) => {
+    if (viewMode !== 'management') return;
     if (isInitialLoad) setLoading(true);
     try {
-      const latestTransactions = await api.getAdminTransactions(token);
+      const data = await api.getAdminTransactions(token, currentPage, itemsPerPage, filter);
+      const latestTransactions = data.transactions;
 
       if (isInitialLoad) {
         latestTransactions.forEach(t => {
@@ -299,6 +354,7 @@ export default function AdminTransactionsPage() {
       }
 
       setTransactions(latestTransactions);
+      setTotalPages(data.pagination?.totalPages || 1);
       setError('');
     } catch (err) {
       console.error("Polling/fetching transactions failed:", err);
@@ -307,7 +363,18 @@ export default function AdminTransactionsPage() {
     } finally {
       if (isInitialLoad) setLoading(false);
     }
-  }, [token, logout]); // Dependencies for the fetch function
+  }, [token, logout, viewMode, currentPage, itemsPerPage, filter]); // Dependencies for the fetch function
+
+  // Fetch global stats for cards
+  useEffect(() => {
+    api.getAdminTransactionsStats(token).then(stats => {
+      if (stats.counts) setTransactionCounts(stats.counts);
+      setTotalItemsSold(stats.totalItemsSold || 0);
+      setTotalRevenue(stats.totalRevenue || 0);
+    }).catch(err => {
+      console.error("Failed to load transaction stats:", err);
+    });
+  }, [token]);
 
   useEffect(() => {
     if (!token) {
@@ -333,29 +400,7 @@ export default function AdminTransactionsPage() {
     } finally {
       setConfirmingId(null);
     }
-  }, [token, fetchAndProcessTransactions]); // Added fetchAndProcessTransactions to dependencies
-
-  const filteredTransactions = useMemo(() => {
-    if (filter === 'all') return transactions;
-    return transactions.filter(t => t.status === filter);
-  }, [transactions, filter]);
-
-  const transactionCounts = useMemo(() => ({
-    processing: transactions.filter(t => t.status === 'processing').length,
-    completed: transactions.filter(t => t.status === 'completed').length,
-    pending: transactions.filter(t => t.status === 'pending').length,
-    all: transactions.length,
-  }), [transactions]);
-
-  // Calculate total items sold and total revenue from completed transactions
-  const totalItemsSold = useMemo(() => {
-    return transactions.filter(t => t.status === 'completed').reduce((acc, t) => acc + t.quantity, 0);
-  }, [transactions]);
-
-  const totalRevenue = useMemo(() => {
-    return transactions.filter(t => t.status === 'completed').reduce((acc, t) => acc + t.amount, 0);
-  }, [transactions]);
-
+  }, [token, fetchAndProcessTransactions]);
 
   return (
     <div style={adminStyles.container}>
@@ -365,9 +410,9 @@ export default function AdminTransactionsPage() {
           <button onClick={() => nav('/admin/products')} style={{ ...adminStyles.button, marginRight: '1rem' }}>
             Dashboard
           </button>
-          <button onClick={logout} style={{ ...adminStyles.button, ...adminStyles.dangerButton }}>
-            Logout
-          </button>
+          {/* <button onClick={logout} style={{ ...adminStyles.button, ...adminStyles.dangerButton }}>
+            Đăng xuất
+          </button> */}
         </div>
       </div>
 
@@ -435,8 +480,8 @@ export default function AdminTransactionsPage() {
                 </tr>
               </thead>
               <tbody>
-                {filteredTransactions.length > 0 ? (
-                  filteredTransactions.map(transaction => (
+                {transactions.length > 0 ? (
+                  transactions.map(transaction => (
                     <tr key={transaction._id}>
                       <td style={adminStyles.td}>{new Date(transaction.createdAt).toLocaleString('vi-VN')}</td>
                       <td style={adminStyles.td}>
@@ -474,9 +519,16 @@ export default function AdminTransactionsPage() {
               </tbody>
             </table>
           </div>
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          )}
         </>
       ) : (
-        <UserSalesReport transactions={transactions} />
+        <UserSalesReport />
       )}
     </div>
   );

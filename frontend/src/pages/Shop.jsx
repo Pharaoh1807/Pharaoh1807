@@ -1,14 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
-import pagesStyles from "../styles/pagesStyles"
+import pagesStyles from "../styles/pagesStyles";
+import Pagination from '../components/Pagination';
 
 export default function Shop() {
   const nav = useNavigate();
   const [products, setProducts] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [hoveredProductId, setHoveredProductId] = useState(null);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 12;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   // Mảng chứa thông tin banner. Bạn có thể thay đổi link hình hoặc link bài viết ở đây
   const banners = [
@@ -34,8 +43,18 @@ export default function Shop() {
   }, [banners.length]);
 
   useEffect(() => {
-    api.getProducts().then(setProducts)
-  }, [])
+    setLoading(true);
+    api.getProducts(currentPage, itemsPerPage, searchTerm)
+      .then(data => {
+        setProducts(data.products || []);
+        setTotalPages(data.pagination?.totalPages || 1);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, [currentPage, searchTerm, itemsPerPage]);
 
   const viewProduct = (productId) => {
     nav(`/products/${productId}`);
@@ -50,9 +69,7 @@ export default function Shop() {
     marginBottom: 0, // Bỏ margin để container gắn margin
   };
 
-  const filteredProducts = Array.isArray(products) ? products.filter(p =>
-    (p.name || '').toLowerCase().includes(searchTerm.toLowerCase())
-  ) : [];
+  // Mảng lọc và phân trang hiện đã được xử lý ở phía server.
 
   return (
     <div style={pagesStyles.container}>
@@ -150,7 +167,9 @@ export default function Shop() {
       </div>
 
       <div style={pagesStyles.grid}>
-        {filteredProducts.map(p => (
+        {loading ? <p style={{ gridColumn: '1 / -1', textAlign: 'center' }}>Đang tải sản phẩm...</p> : 
+          products.length === 0 ? <p style={{ gridColumn: '1 / -1', textAlign: 'center' }}>Không tìm thấy sản phẩm nào.</p> :
+          products.map(p => (
           <div
             key={p._id}
             style={{ ...pagesStyles.productCard, cursor: 'pointer', overflow: 'hidden' }}
@@ -220,6 +239,14 @@ export default function Shop() {
           </div>
         ))}
       </div>
+
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
+      )}
 
     </div>
   )

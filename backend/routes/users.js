@@ -94,12 +94,52 @@ router.get('/me', protect, (req, res) => {
  */
 router.get('/orders', protect, async (req, res) => {
   try {
-    // Find only COMPLETED transactions for the logged-in user and populate product details
-    const orders = await Transaction.find({ user: req.user._id })
-      .populate('product', 'name imageUrls priceCents _id') // Lấy thông tin sản phẩm liên quan
-      .sort({ createdAt: -1 }); // Sắp xếp đơn hàng mới nhất lên đầu
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 5;
+    const search = req.query.search || '';
+    const status = req.query.status || 'all';
+    const sort = req.query.sort || 'newest';
+    const skip = (page - 1) * limit;
 
-    res.json(orders);
+    let query = { user: req.user._id };
+
+    if (status !== 'all') {
+      query.status = status;
+    }
+
+    if (search) {
+      // Find matching products first to support querying by product name
+      const Product = require('../models/Product');
+      const matchingProducts = await Product.find({ name: { $regex: search, $options: 'i' } }, '_id');
+      const productIds = matchingProducts.map(p => p._id);
+      
+      query.$or = [
+        { transactionId: { $regex: search, $options: 'i' } },
+        { product: { $in: productIds } }
+      ];
+    }
+
+    let sortObj = { createdAt: -1 };
+    if (sort === 'oldest') sortObj = { createdAt: 1 };
+
+    const totalOrders = await Transaction.countDocuments(query);
+    const totalPages = Math.ceil(totalOrders / limit) || 1;
+
+    // Find requested transactions for the logged-in user and populate product details
+    const orders = await Transaction.find(query)
+      .populate('product', 'name imageUrls priceCents _id') // Lấy thông tin sản phẩm liên quan
+      .sort(sortObj)
+      .skip(skip)
+      .limit(limit);
+
+    res.json({
+      orders,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalOrders
+      }
+    });
   } catch (error) {
     console.error("Error fetching user's orders:", error);
     res.status(500).json({ error: 'Server error while fetching orders.' });

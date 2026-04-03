@@ -2,15 +2,22 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { adminStyles } from '../styles/adminStyles';
+import Pagination from '../components/Pagination';
 
 export default function AdminProducts() {
   const nav = useNavigate();
   const token = localStorage.getItem('admin_token') || '';
   const [items, setItems] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [activeProductsCount, setActiveProductsCount] = useState(0);
+  const [totalStockValue, setTotalStockValue] = useState(0);
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalQuantitySold, setTotalQuantitySold] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [loadingProducts, setLoadingProducts] = useState(true); // Keep loading state for products
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const logout = useCallback(() => {
     localStorage.removeItem('admin_token');
@@ -24,9 +31,10 @@ export default function AdminProducts() {
     }
     // Tải danh sách sản phẩm
     setLoadingProducts(true);
-    api.adminList(token)
+    api.adminList(token, currentPage, itemsPerPage)
       .then(data => {
-        setItems(data);
+        setItems(data.products || []);
+        setTotalPages(data.pagination?.totalPages || 1);
         setLoadingProducts(false);
       })
       .catch((err) => {
@@ -34,6 +42,16 @@ export default function AdminProducts() {
         logout();
         setLoadingProducts(false);
       });
+      
+    // Lấy thống kê sản phẩm
+    api.getAdminProductsStats(token)
+      .then(data => {
+        setTotalProducts(data.totalProducts);
+        setActiveProductsCount(data.activeProducts);
+        setTotalStockValue(data.totalValue);
+      })
+      .catch((err) => console.error("Failed to fetch product stats:", err));
+
     // Lấy tổng số người dùng để hiển thị trên dashboard
     api.getAdminUsers(token, 1, 1)
       .then(data => setTotalUsers(data.pagination.totalUsers))
@@ -41,21 +59,16 @@ export default function AdminProducts() {
         console.error("Failed to fetch total users:", err);
         // Don't logout for user count error, just log it
       });
-    // Lấy tổng số lượng đã bán
-    api.getAdminTransactions(token)
+    // Lấy tổng số lượng đã bán và doanh thu (giờ dùng transaction stats)
+    api.getAdminTransactionsStats(token)
       .then(data => {
-        const completedTransactions = data.filter(t => t.status === 'completed');
-
-        const totalQty = completedTransactions.reduce((acc, transaction) => acc + transaction.quantity, 0);
-        setTotalQuantitySold(totalQty);
-
-        const revenue = completedTransactions.reduce((acc, transaction) => acc + transaction.amount, 0);
-        setTotalRevenue(revenue);
+        setTotalQuantitySold(data.totalItemsSold);
+        setTotalRevenue(data.totalRevenue);
       })
       .catch((err) => {
         console.error("Failed to fetch transactions for dashboard:", err);
       });
-  }, [token, nav, logout]);
+  }, [token, nav, logout, currentPage]);
 
   const toggleActive = async (p) => {
     try {
@@ -86,17 +99,17 @@ export default function AdminProducts() {
     nav(`/admin/products/${p._id}/history`);
   };
 
-  const totalProducts = items.length;
-  const totalValue = Array.isArray(items) && items.reduce((sum, item) => sum + (item.active ? item.priceCents : 0) * (item.active ? item.stock : 0), 0);
-  const activeProducts = Array.isArray(items) && items.filter(item => item.active).length;
+  // Các biến stat đã được load từ backend.
+
 
   return (
     <div style={adminStyles.container}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2 style={adminStyles.header}>Trang quản lý</h2>
-        <button onClick={logout} style={{ ...adminStyles.button, ...adminStyles.dangerButton }}>
+        {/* <button onClick={logout} style={{ ...adminStyles.button, ...adminStyles.dangerButton }}>
           Đăng xuất
-        </button>
+        </button> */}
+
       </div>
 
       {/* Summary Section */}
@@ -110,13 +123,13 @@ export default function AdminProducts() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0' }}>
           <span style={{ fontSize: '1.1rem', color: 'var(--text-muted)' }}>Tổng giá trị tồn kho:</span>
           <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#48bb78', whiteSpace: 'nowrap' }}>
-            {totalValue ? totalValue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : '0 ₫'}
+            {totalStockValue ? totalStockValue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : '0 ₫'}
           </span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.5rem 0', borderTop: '1px solid var(--border-color)', marginTop: '0.5rem' }}>
           <span style={{ fontSize: '1.1rem', color: 'var(--text-muted)' }}>Tổng doanh thu:</span>
           <span style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#48bb78', whiteSpace: 'nowrap' }}>
-            {totalRevenue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+            {totalRevenue ? totalRevenue.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }) : '0 ₫'}
           </span>
         </div>
       </div>
@@ -128,7 +141,7 @@ export default function AdminProducts() {
         </div>
         <div style={adminStyles.statCard}>
           <h3 style={adminStyles.statCardTitle}>Sản phẩm đang hoạt động</h3>
-          <p style={adminStyles.statCardValue}>{activeProducts}</p>
+          <p style={adminStyles.statCardValue}>{activeProductsCount}</p>
         </div>
         <div style={{ ...adminStyles.statCard, cursor: 'pointer' }} onClick={() => nav('/admin/users')}>
           <h3 style={adminStyles.statCardTitle}>Tổng người dùng</h3>
@@ -192,6 +205,14 @@ export default function AdminProducts() {
             ))}
           </tbody>
         </table>
+      )}
+
+      {!loadingProducts && totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       )}
     </div>
   );

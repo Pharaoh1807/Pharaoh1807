@@ -1,8 +1,10 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000';
 
 export const api = {
-  async getProducts() {
-    const res = await fetch(`${API_URL}/api/products`);
+  async getProducts(page = 1, limit = 12, search = '') {
+    const params = new URLSearchParams({ page, limit });
+    if (search) params.append('search', search);
+    const res = await fetch(`${API_URL}/api/products?${params.toString()}`);
     return res.json();
   },
   async getProductById(id) {
@@ -118,8 +120,11 @@ export const api = {
     return res.json();
   },
 
-  async getUserOrders(token) {
-    const res = await fetch(`${API_URL}/api/users/orders`, {
+  async getUserOrders(token, page = 1, limit = 5, search = '', status = 'all', sort = 'newest') {
+    const params = new URLSearchParams({ page, limit, status, sort });
+    if (search) params.append('search', search);
+
+    const res = await fetch(`${API_URL}/api/users/orders?${params.toString()}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -200,8 +205,14 @@ export const api = {
 
 
 
-  async adminList(token) {
-    const res = await fetch(`${API_URL}/api/admin/products`, {
+  async getAdminProductsStats(token) {
+    const res = await fetch(`${API_URL}/api/admin/products/stats`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return res.json();
+  },
+  async adminList(token, page = 1, limit = 10) {
+    const res = await fetch(`${API_URL}/api/admin/products?page=${page}&limit=${limit}`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     return res.json();
@@ -277,7 +288,18 @@ export const api = {
       },
       body: formData // Let browser set Content-Type header
     });
-    if (!res.ok) throw new Error('Image upload failed');
+    
+    if (!res.ok) {
+      let errorMsg = 'Image upload failed';
+      try {
+        const errData = await res.json();
+        if (errData.error) errorMsg = errData.error;
+      } catch (e) {
+        console.error('Could not parse backend error as JSON', e);
+      }
+      throw new Error(errorMsg);
+    }
+    
     return res.json();
   },
 
@@ -294,8 +316,8 @@ export const api = {
     return res.json();
   },
 
-  async getAdminTransactions(token) {
-    const res = await fetch(`${API_URL}/api/admin/transactions`, {
+  async getAdminTransactions(token, page = 1, limit = 15, status = 'all') {
+    const res = await fetch(`${API_URL}/api/admin/transactions?page=${page}&limit=${limit}&status=${status}`, {
       headers: {
         'Authorization': `Bearer ${token}`,
       },
@@ -304,6 +326,25 @@ export const api = {
       const error = await res.json();
       throw new Error(error.error || 'Failed to fetch transactions');
     }
+    return res.json();
+  },
+
+  async getAdminTransactionsStats(token) {
+    const res = await fetch(`${API_URL}/api/admin/transactions/stats`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to fetch transaction stats');
+    return res.json();
+  },
+
+  async getAdminTransactionsUserStats(token, page = 1, limit = 10, search = '') {
+    const params = new URLSearchParams({ page, limit });
+    if (search) params.append('search', search);
+
+    const res = await fetch(`${API_URL}/api/admin/transactions/user-stats?${params.toString()}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error('Failed to fetch user transaction stats');
     return res.json();
   },
 
