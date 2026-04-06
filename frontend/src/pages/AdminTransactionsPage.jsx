@@ -244,7 +244,7 @@ const UserSalesReport = () => {
                           </div>
                         </div>
                         <table style={{ ...adminStyles.table, marginTop: '1rem', width: '100%', tableLayout: 'fixed' }}>
-                          <thead><tr><th style={{ ...adminStyles.th, textAlign: 'left' }}>Sản phẩm</th><th style={adminStyles.th}>Số lượng</th><th style={adminStyles.th}>Thành tiền</th><th style={adminStyles.th}>Ngày mua</th></tr></thead>
+                          <thead><tr><th style={{ ...adminStyles.th, textAlign: 'left' }}>Sản phẩm</th><th style={{ ...adminStyles.th, textAlign: 'center' }}>Số lượng</th><th style={{ ...adminStyles.th, textAlign: 'center' }}>Thành tiền</th><th style={{ ...adminStyles.th, textAlign: 'center' }}>Ngày mua</th></tr></thead>
                           <tbody>
                             {(() => {
                               const userTransactions = getFilteredUserTransactions(userId, group.transactions);
@@ -262,7 +262,7 @@ const UserSalesReport = () => {
                                     <tr key={t._id}>
                                       <td style={adminStyles.td}>{t.product?.name || 'Sản phẩm đã bị xóa'}</td>
                                       <td style={{ ...adminStyles.td, textAlign: 'center' }}>{t.quantity}</td>
-                                      <td style={{ ...adminStyles.td, textAlign: 'right' }}>{t.amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
+                                      <td style={{ ...adminStyles.td, textAlign: 'center' }}>{t.amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}</td>
                                       <td style={{ ...adminStyles.td, textAlign: 'center' }}>{new Date(t.createdAt).toLocaleDateString('vi-VN')}</td>
                                     </tr>
                                   ))}
@@ -358,6 +358,7 @@ export default function AdminTransactionsPage() {
       }
 
       setTransactions(latestTransactions);
+      console.log(latestTransactions);
       setTotalPages(data.pagination?.totalPages || 1);
       setError('');
     } catch (err) {
@@ -493,6 +494,8 @@ export default function AdminTransactionsPage() {
                         <span style={{ fontSize: '0.8em', color: 'var(--text-muted)' }}>({transaction.user?.email || 'N/A'})</span>
                       </td>
                       <td style={adminStyles.td}>{transaction.product?.name || 'N/A'}</td>
+                      <td style={adminStyles.td}>{transaction.quantity || 'N/A'}</td>
+
                       <td style={{ ...adminStyles.td, whiteSpace: 'nowrap' }}>
                         {(transaction.amount).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
                       </td>
